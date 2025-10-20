@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admit Card Page CMS (Static HTML Generator)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the Blue Buttons in the Preview */
+        .btn-blue-preview {
+            display: inline-block;
+            padding: 4px 8px; /* px-3 py-1 */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600; /* font-semibold */
+            color: #ffffff;
+            background-color: #2563eb; /* bg-blue-600 */
+            border-radius: 0.25rem; /* rounded */
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: background-color 0.15s ease-in-out;
+        }
+        .btn-blue-preview:hover {
+            background-color: #1d4ed8;
+        }
+        /* Style for the CMS Editor (for the split view) */
+        #cms-editor {
+            height: calc(100vh - 4rem); /* Full height minus header */
+            overflow-y: auto;
+        }
+        #page-preview {
+            height: calc(100vh - 4rem);
+            overflow-y: auto;
+            border-left: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <header class="bg-blue-800 text-white p-4 shadow-md flex justify-between items-center sticky top-0 z-10">
+        <h1 class="text-xl font-bold">Admit Card Page CMS</h1>
+        <div class="flex space-x-2">
+            <button onclick="saveConfig()" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded transition">Save Config</button>
+            <button onclick="downloadEdits()" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded transition">Download Edits</button>
+            <label for="restoreFile" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded cursor-pointer transition">Restore Config</label>
+            <input type="file" id="restoreFile" accept=".json" class="hidden" onchange="restoreConfig(event)">
+            <button onclick="downloadHtml()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition">Download Pure HTML</button>
+        </div>
+    </header>
+
+    <div class="flex flex-col md:flex-row">
+        <div id="cms-editor" class="md:w-1/2 p-6 bg-white overflow-y-auto">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700 border-b pb-2">CMS Inputs</h2>
+
+            <div class="mb-6 p-4 border rounded-lg bg-blue-50">
+                <label for="metaTags" class="block text-lg font-medium text-gray-700 mb-2">1. &lt;head&gt; Meta Tags (SEO/Description)</label>
+                <textarea id="metaTags" rows="4" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" oninput="updatePreview()"></textarea>
+            </div>
+
+            <div class="mb-6 p-4 border rounded-lg bg-blue-50">
+                <label for="adsenseScript" class="block text-lg font-medium text-gray-700 mb-2">2. Adsense / Header Scripts</label>
+                <textarea id="adsenseScript" rows="4" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" oninput="updatePreview()"></textarea>
+            </div>
+
+            <div class="mb-6">
+                <label for="h1Title" class="block text-lg font-medium text-gray-700 mb-2">3. Main Page Title (H1)</label>
+                <input type="text" id="h1Title" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" value="Latest Govt Exam Admit Cards 2024" oninput="updatePreview()">
+            </div>
+            
+            <div class="mb-6 border rounded-lg p-4 shadow-sm">
+                <h3 class="text-xl font-medium text-gray-700 mb-3">4. Admit Card Links Table</h3>
+                <div id="tableRows" class="space-y-3">
+                    </div>
+                <button onclick="addRow()" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition font-semibold">
+                    + Add New Admit Card Row
+                </button>
+            </div>
+            
+            <div class="mb-6 p-4 border rounded-lg bg-blue-50">
+                <label for="blogContent" class="block text-lg font-medium text-gray-700 mb-2">5. Blog Content Area (HTML)</label>
+                <textarea id="blogContent" rows="10" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" oninput="updatePreview()"></textarea>
+            </div>
+
+            <div class="mb-6 p-4 border rounded-lg bg-blue-50">
+                <label for="footerContent" class="block text-lg font-medium text-gray-700 mb-2">6. Footer HTML/Scripts</label>
+                <textarea id="footerContent" rows="6" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" oninput="updatePreview()"></textarea>
+            </div>
+
+        </div>
+
+        <div id="page-preview" class="md:w-1/2 p-4 bg-white">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Live Preview</h2>
+            <iframe id="preview-frame" class="w-full h-[calc(100%-3rem)] bg-white border rounded-lg shadow-inner"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'admitCardCMSConfig';
+
+        // --- Core Functions ---
+
+        /** Generates the final, pure HTML for download/preview (SIMPLIFIED VERSION) */
+        function generatePageHTML(forDownload = false) {
+            const h1Title = document.getElementById('h1Title').value || 'Admit Cards';
+            const metaTags = document.getElementById('metaTags').value;
+            const adsenseScript = document.getElementById('adsenseScript').value;
+            const blogContent = document.getElementById('blogContent').value;
+            const footerContent = document.getElementById('footerContent').value;
+            const tableData = getTableData();
+
+            // 1. Generate Table HTML
+            let tableHtml = `<div class="overflow-x-auto shadow-lg rounded-lg mb-8 max-w-4xl mx-auto">
+                <table id="admitCardTable" class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-blue-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">Exam Name</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">Download Admit Card</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">Official Website</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">`;
+
+            tableData.forEach((row, index) => {
+                const rowClass = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                
+                // Determine the correct button style for the context
+                const btnClass = forDownload ? 'btn-blue-download' : 'btn-blue-preview';
+
+                tableHtml += `
+                    <tr class="${rowClass} hover:bg-blue-50 transition duration-150">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${row.examName || 'Exam Name Missing'}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm">
+                            <a href="${row.admitUrl}" target="_blank" rel="noopener noreferrer" class="${btnClass}">
+                                &rarr; Download Now
+                            </a>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm">
+                            <a href="${row.officialUrl}" target="_blank" rel="noopener noreferrer" class="${btnClass}">
+                                &rarr; Official Site
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `</tbody></table></div>`;
+
+
+            // 2. The Final HTML Structure
+            const finalHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${h1Title}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <style>
+        .btn-blue-download {
+            display: inline-block;
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #2563eb;
+            border-radius: 0.25rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: background-color 0.15s ease-in-out;
+        }
+        .btn-blue-download:hover {
+            background-color: #1d4ed8;
+        }
+        @media (max-width: 640px) {
+            .btn-blue-download {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+        }
+        /* Blog Content Styling for final output */
+        #blog-content h2 { font-size: 1.875rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        #blog-content h3 { font-size: 1.5rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; }
+    </style>
+
+    ${metaTags}
+
+    ${adsenseScript}
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-2">${h1Title}</h1>
+            <p class="text-lg text-gray-600">All the latest and most important admit card links for government exams.</p>
+        </header>
+
+        ${tableHtml}
+
+        <section id="blog-content" class="mt-12 max-w-4xl mx-auto px-4">
+            ${blogContent}
+        </section>
+    </div>
+
+    <footer class="mt-16 border-t border-gray-200 pt-8 pb-4 text-center text-sm text-gray-500">
+        ${footerContent || ''}
+    </footer>
+    
+</body>
+</html>`;
+
+            return finalHtml;
+        }
+
+        /** Renders the generated HTML into the iframe for live preview */
+        function updatePreview() {
+            try {
+                const iframe = document.getElementById('preview-frame');
+                if (!iframe) { console.error("Preview iframe not found!"); return; }
+                
+                const doc = iframe.contentWindow.document;
+                const previewHtml = generatePageHTML(false); 
+
+                doc.open();
+                doc.write(previewHtml);
+                doc.close();
+                saveConfig(true); 
+            } catch (e) {
+                console.error("Error updating preview:", e);
+            }
+        }
+        
+        // --- Table Management ---
+
+        /** Adds a new row to the table editor */
+        function addRow(data = {}) {
+            const tableRows = document.getElementById('tableRows');
+            const rowId = Date.now();
+            const defaultData = { examName: '', admitUrl: 'https://', officialUrl: 'https://', ...data };
+
+            const rowElement = document.createElement('div');
+            rowElement.id = `row-${rowId}`;
+            rowElement.className = 'flex flex-col sm:flex-row gap-2 border p-3 rounded-md bg-white shadow-sm relative';
+            rowElement.innerHTML = `
+                <button onclick="removeRow('${rowId}')" class="absolute top-0 right-0 m-1 text-red-500 hover:text-red-700 font-bold text-lg leading-none">&times;</button>
+                <input type="text" placeholder="Exam Name" class="flex-1 p-2 border rounded" value="${defaultData.examName}" oninput="updatePreview()">
+                <input type="url" placeholder="Admit Card URL" class="flex-1 p-2 border rounded" value="${defaultData.admitUrl}" oninput="updatePreview()">
+                <input type="url" placeholder="Official Site URL" class="flex-1 p-2 border rounded" value="${defaultData.officialUrl}" oninput="updatePreview()">
+            `;
+            tableRows.prepend(rowElement);
+            updatePreview();
+        }
+
+        /** Removes a row from the table editor */
+        function removeRow(rowId) {
+            const row = document.getElementById(`row-${rowId}`);
+            if (row) {
+                row.remove();
+                updatePreview();
+            }
+        }
+
+        /** Collects data from all table input fields */
+        function getTableData() {
+            const rows = document.getElementById('tableRows').children;
+            const data = [];
+            for (let i = 0; i < rows.length; i++) {
+                const inputs = rows[i].querySelectorAll('input[type="text"], input[type="url"]');
+                if (inputs.length === 3) {
+                    data.push({
+                        examName: inputs[0].value,
+                        admitUrl: inputs[1].value,
+                        officialUrl: inputs[2].value
+                    });
+                }
+            }
+            return data;
+        }
+
+        /** Populates the table editor from data */
+        function loadTableData(data) {
+            const tableRows = document.getElementById('tableRows');
+            tableRows.innerHTML = ''; // Clear existing rows
+            data.forEach(row => addRow(row));
+        }
+
+        // --- Storage & Download Functions ---
+
+        /** Saves current CMS configuration to browser's Local Storage */
+        function saveConfig(silent = false) {
+            try {
+                const config = {
+                    h1Title: document.getElementById('h1Title').value,
+                    metaTags: document.getElementById('metaTags').value,
+                    adsenseScript: document.getElementById('adsenseScript').value,
+                    blogContent: document.getElementById('blogContent').value,
+                    footerContent: document.getElementById('footerContent').value,
+                    tableData: getTableData()
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+                if (!silent) {
+                    alert('CMS Configuration saved to browser\'s local storage!');
+                }
+            } catch (e) {
+                if (!silent) alert('Error saving configuration: ' + e.message);
+                console.error("Save error:", e);
+            }
+        }
+
+        /** Loads CMS configuration from browser's Local Storage */
+        function loadConfig() {
+            const configString = localStorage.getItem(STORAGE_KEY);
+            if (configString) {
+                try {
+                    const config = JSON.parse(configString);
+                    document.getElementById('h1Title').value = config.h1Title || '';
+                    document.getElementById('metaTags').value = config.metaTags || '';
+                    document.getElementById('adsenseScript').value = config.adsenseScript || '';
+                    document.getElementById('blogContent').value = config.blogContent || '';
+                    document.getElementById('footerContent').value = config.footerContent || '';
+                    loadTableData(config.tableData || []);
+                    return true;
+                } catch (e) {
+                    console.error("Error loading config from storage:", e);
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        /** Downloads the current config as a JSON file */
+        function downloadEdits() {
+            const config = {
+                h1Title: document.getElementById('h1Title').value,
+                metaTags: document.getElementById('metaTags').value,
+                adsenseScript: document.getElementById('adsenseScript').value,
+                blogContent: document.getElementById('blogContent').value,
+                footerContent: document.getElementById('footerContent').value,
+                tableData: getTableData()
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "admit_card_config.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        /** Restores config from an uploaded JSON file */
+        function restoreConfig(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    document.getElementById('h1Title').value = config.h1Title || '';
+                    document.getElementById('metaTags').value = config.metaTags || '';
+                    document.getElementById('adsenseScript').value = config.adsenseScript || '';
+                    document.getElementById('blogContent').value = config.blogContent || '';
+                    document.getElementById('footerContent').value = config.footerContent || '';
+                    loadTableData(config.tableData || []);
+                    updatePreview();
+                    alert('Configuration restored successfully from file!');
+                } catch (error) {
+                    alert('Error loading file: Invalid JSON format.');
+                    console.error("Restore error:", error);
+                }
+                event.target.value = ''; // Clear file input
+            };
+            reader.readAsText(file);
+        }
+
+        /** Downloads the final, static HTML file */
+        function downloadHtml() {
+            const htmlContent = generatePageHTML(true); // Generate the download version
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'admit_card_page.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- Initialization ---
+        
+        window.onload = function() {
+            // Load from storage, if nothing is found, load defaults
+            if (!loadConfig()) {
+                // Set default content if local storage is empty
+                document.getElementById('blogContent').value = '<h2>How to Download Your Admit Card</h2><p>Follow these simple steps:</p>';
+                document.getElementById('footerContent').value = '<p>&copy; 2024 Your Website. All rights reserved.</p>';
+                // Add default rows
+                addRow({ examName: 'SSC CGL 2024', admitUrl: 'https://ssc.nic.in/admit', officialUrl: 'https://ssc.nic.in' });
+                addRow({ examName: 'UPSC Prelims', admitUrl: 'https://upsc.gov.in/e-admitcard', officialUrl: 'https://upsc.gov.in' });
+            }
+            // A small delay ensures the iframe is ready to be written to
+            setTimeout(updatePreview, 100); 
+        };
+    </script>
+
+</body>
+</html>

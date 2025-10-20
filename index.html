@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Editor Selection</title>
+  <style>
+    :root{
+      --bg: #0f1724;
+      --card: #0b1220;
+      --accent: #38bdf8;
+      --text: #e6eef8;
+      --muted: #97a6bf;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,var(--bg), #071223 80%);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .center-wrap{
+      width:100%;
+      max-width:900px;
+      padding:32px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .card{
+      width:100%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));
+      border-radius:18px;
+      padding:48px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+      text-align:center;
+    }
+    h1{margin:0 0 8px 0;font-size:28px;}
+    p.lead{margin:0 0 28px 0;color:var(--muted);}
+    .btn-row{
+      display:flex;
+      gap:22px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .big-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      padding:18px 36px;
+      min-width:220px;
+      border-radius:14px;
+      border:2px solid transparent;
+      font-size:18px;
+      font-weight:600;
+      cursor:pointer;
+      background: linear-gradient(90deg, rgba(56,189,248,0.12), rgba(99,102,241,0.06));
+      color:var(--text);
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+      text-decoration:none;
+    }
+    .big-btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(2,6,23,0.6);}
+    .primary{background:linear-gradient(90deg,#2563eb,#06b6d4);color:white;}
+    .secondary{background-color: #0c3147; color: white;},rgba(70, 5, 5, 0.01));color:var(--text);}
+    @media (max-width:560px){
+      .big-btn{padding:14px 20px;min-width:160px;font-size:16px;}
+      .card{padding:28px;border-radius:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="center-wrap">
+    <div class="card">
+      <h1>Choose an editor</h1>
+      <p class="lead">Pick which editor you'd like to open — Homepage or Blog.</p>
+
+      <div class="btn-row">
+        <!-- Homepage Editor button -->
+        <!-- NOTE: Change the link below to where you want the Homepage Editor to go -->
+        <!-- Example: href="homepage.html" or href="https://yourwebsite.com/homepage" -->
+        <a class="big-btn primary" href="Homepage_Editor.html">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M3 11.5L12 4l9 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 11.5v7.5a1 1 0 0 0 1 1h3v-5.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V20h3a1 1 0 0 0 1-1v-7.5" stroke="rgba(255,255,255,0.95)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Homepage Editor</span>
+        </a>
+
+        <!-- Blog Editor button -->
+        <!-- NOTE: Change the link below to where you want the Blog Editor to go -->
+        <!-- Example: href="blog.html" or href="https://yourwebsite.com/blog-editor" -->
+        <a class="big-btn secondary" href="Blog_editor.html">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M3 21v-3.6L14.8 5.6a2 2 0 0 1 2.8 0l1.8 1.8a2 2 0 0 1 0 2.8L7.6 21H3z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 7l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Blog Editor</span>
+        </a>
+
+                </a>
+
+        <!-- Blog Editor button -->
+        <!-- NOTE: Change the link below to where you want the Blog Editor to go -->
+        <!-- Example: href="blog.html" or href="https://yourwebsite.com/blog-editor" -->
+        <a class="big-btn secondary" href="Admit_Card_Page_Editor.html">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M3 21v-3.6L14.8 5.6a2 2 0 0 1 2.8 0l1.8 1.8a2 2 0 0 1 0 2.8L7.6 21H3z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 7l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Admit Card Page Editor</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
