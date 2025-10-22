@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>rozgardesk.in - CMS Editor</title>
+<style>
+  /* Basic layout & style kept similar to your original */
+  body{font-family:'Segoe UI',Tahoma, Geneva, Verdana, sans-serif;margin:0;background:#f4f7f9;color:#333;height:100vh;display:flex;flex-direction:column;}
+  .editor-section{flex:1;padding:20px;background:#fff;overflow:auto;box-sizing:border-box;}
+  .cms-header{background:#0d47a1;color:#fff;padding:15px;text-align:center;font-size:18px;margin:-20px -20px 20px -20px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+  .button-group{margin-bottom:16px;display:flex;gap:6px;flex-wrap:wrap}
+  .button-group button{background:#2196f3;color:#fff;border:none;padding:8px 10px;cursor:pointer;border-radius:4px;font-size:12px}
+  .button-group button:hover{background:#1976d2}
+  #restoreJsonInput{display:none}
+  .form-group{margin-bottom:14px;padding:10px;background:#f9f9f9;border-radius:6px;border:1px solid #eee}
+  .form-group label{display:block;margin-bottom:6px;font-weight:600;color:#0d47a1;font-size:13px}
+  /* Editor Input Styling */
+  .form-group input[type="text"], .form-group textarea{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;font-size:13px}
+  
+  /* --- COLOR PICKER DESIGN FIX (Solid Swatch) --- */
+  .form-group input[type="color"]{
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 30px; 
+    padding: 0;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  .form-group input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .form-group input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
+  .form-group input[type="color"]::-moz-color-swatch { border: none; border-radius: 3px; }
+  /* End Color Picker Fix */
+  
+  .form-row{display:flex;gap:10px}
+  .half{flex:1}
+  .add-btn{background:#4caf50;padding:8px 12px;border:none;color:#fff;border-radius:4px;cursor:pointer}
+  .add-btn:hover{background:#45a049}
+  
+  /* === COMPACT JOB CARD STYLES === */
+  .job-card{
+    background:#fff;
+    border:1px solid #ccc;
+    border-radius:6px;
+    padding:10px;
+    margin-bottom:10px;
+    position:relative;
+    box-shadow:0 1px 3px rgba(0,0,0,0.04);
+    display: flex; /* Enable flex container */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    gap: 8px; /* Spacing between the field groups */
+    align-items: flex-start; /* Align items to the start */
+  }
+  .job-card .remove-row-btn{position:absolute;top:6px;right:6px;background:#f44336;color:#fff;border:none;padding:4px 8px;border-radius:3px;cursor:pointer;font-size:11px}
+  .job-card-label{font-weight:600;color:#333;display:block;margin-bottom:4px;font-size:12px; margin-top:0;}
+  .job-card-label:first-of-type{margin-top:0}
+  
+  /* Style for each field group in the compact layout */
+  .job-field-group {
+    flex: 1 1 calc(20% - 8px); /* Base: 5 fields per row for a wide screen, shrinks if needed. (5*20 = 100) */
+    min-width: 150px; /* Minimum width for each field before wrapping */
+  }
+  .job-field-group input[type="text"] {
+    padding: 6px 8px; /* Slightly smaller padding */
+    font-size: 12px; /* Smaller font size */
+  }
+  .job-card .link-url-input-group {
+    flex: 1 1 100%; /* URL link takes full width */
+  }
+  /* END COMPACT JOB CARD STYLES */
+
+  /* Sidebar builder visuals */
+  .sidebar-builder{display:flex;gap:18px;margin-top:8px}
+  .sidebar-column{width:50%;box-sizing:border-box}
+  .sidebar-column .panel{background:#fff;border:1px solid #e6e6e6;padding:10px;border-radius:6px;margin-bottom:12px}
+  .section-card{background:#fbfbfb;border:1px solid #ddd;padding:10px;border-radius:6px;margin-bottom:10px;position:relative}
+  .section-actions{display:flex;gap:8px;margin-top:8px}
+  .small-btn{padding:6px 8px;border-radius:4px;border:none;cursor:pointer;font-size:12px}
+  .small-btn.danger{background:#f44336;color:#fff}
+  .small-btn.ghost{background:#eee}
+  .links-list{margin-top:8px}
+  .link-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+  /* Ensure color input in link row is small and maintains swatches */
+  .link-row input[type="color"] { width: 40px; height: 32px; }
+  .link-row input[type="text"]{flex:1}
+  .muted{font-size:12px;color:#666;margin-top:6px}
+  /* keep overall spacing comfortable */
+  h3.section-title{font-size:16px;margin:18px 0 8px;color:#0d47a1}
+  h3.section-title:first-of-type{margin-top:0}
+  .sync-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+
+  /* --- Notification Bar Styles --- */
+  #notificationBar {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50; /* Green for success */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.5s, transform 0.5s;
+    transform: translateY(100%);
+    z-index: 1000;
+    font-size: 14px;
+  }
+  #notificationBar.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Responsive */
+  @media(max-width:900px){ .sidebar-builder{flex-direction:column} .sidebar-column{width:100%} }
+</style>
+</head>
+<body>
+  <div class="editor-section">
+    <div class="cms-header">CMS Editor - rozgardesk.in</div>
+
+    <div class="button-group">
+      <button id="downloadPureHTML">Download Pure HTML</button>
+      <button id="downloadEdits">Download Edits (JSON)</button>
+      <button id="restoreEdits">Restore Edits (JSON)</button>
+      <button id="saveConfig">Save Config</button>
+      <button id="showPreview">Show Preview</button>
+      <input type="file" id="restoreJsonInput" accept=".json">
+    </div>
+
+    <h3 class="section-title">Global Page Settings</h3>
+    <div class="form-group">
+      <label for="websiteName">Website Name/Title</label>
+      <input type="text" id="websiteName" value="rozgardesk.in">
+    </div>
+
+    <div class="form-group">
+      <label for="metaTags">Meta Tags (Head HTML)</label>
+      <textarea id="metaTags" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="adSenseScript">AdSense / Other Script (paste script only)</label>
+      <textarea id="adSenseScript" rows="3" placeholder="Paste only the script here (will be included in exported HTML)"></textarea>
+    </div>
+
+    <h3 class="section-title">Page Content Sections</h3>
+    <div class="form-group">
+      <label for="pageHeaderContent">Header HTML</label>
+      <textarea id="pageHeaderContent" rows="6"><div style="padding:20px;background-color:#1976d2;color:white;">
+<h1 style="margin:0;font-size:28px;">rozgardesk.in</h1>
+<p style="margin-top:10px;font-size:16px;">Find all the latest Sarkari Naukri and Rozgar here!</p>
+</div></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="jobTableHeading">Job Table Heading</label>
+      <input type="text" id="jobTableHeading" value="Latest Job Openings">
+    </div>
+
+    <h3 class="section-title">Job Table Data Columns Definition</h3>
+    <div class="form-group">
+      <label for="columnHeaders">Data Column Headers (Comma Separated, e.g., Job Title, Dept, Last Date)</label>
+      <input type="text" id="columnHeaders" value="Job Title, Department, Education Qualification, Age Limit, Last Date">
+      <div class="muted">These define the *data* columns. The final column for the 'View Details' link is fixed and always present.</div>
+    </div>
+    <h3 class="section-title">Sidebar Builders (Left & Right)</h3>
+    <div class="form-group">
+      <div class="sync-row">
+        <input type="checkbox" id="showLeftSidebar" checked />
+        <label for="showLeftSidebar" class="muted">Show Left Sidebar</label>
+      </div>
+      <div class="sync-row">
+        <input type="checkbox" id="showRightSidebar" checked />
+        <label for="showRightSidebar" class="muted">Show Right Sidebar</label>
+      </div>
+      <hr style="border:0;border-top:1px solid #eee;margin:10px 0"/>
+      <div class="sync-row">
+        <input type="checkbox" id="syncSidebars" />
+        <label for="syncSidebars" class="muted">Sync sidebars (when checked, changes in one sidebar will mirror to the other automatically)</label>
+      </div>
+      <div class="sidebar-builder">
+        <div class="sidebar-column">
+          <div class="panel">
+            <strong>Left Sidebar</strong>
+            <div class="muted">Add sections with heading, heading color, section color and link list.</div>
+            <div style="margin-top:8px;">
+              <button id="addLeftSection" class="add-btn">➕ Add Section</button>
+            </div>
+            <div id="leftSectionsContainer" style="margin-top:10px"></div>
+          </div>
+        </div>
+
+        <div class="sidebar-column">
+          <div class="panel">
+            <strong>Right Sidebar</strong>
+            <div class="muted">Same controls as left. You can toggle sync to mirror changes.</div>
+            <div style="margin-top:8px;">
+              <button id="addRightSection" class="add-btn">➕ Add Section</button>
+            </div>
+            <div id="rightSectionsContainer" style="margin-top:10px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="section-title">Job Openings Editor</h3>
+    <div style="margin-bottom:8px">
+      <button id="addNewRow" class="add-btn">➕ Add New Job</button>
+    </div>
+    <div id="tableEditorRows"></div>
+
+    <div class="form-group">
+      <label for="mainBlogContent">Main Blog Content (HTML)</label>
+      <textarea id="mainBlogContent" rows="8"><h2>Detailed Job Information</h2><p>This section is for detailed content. Add long descriptions, eligibility criteria, and application links here.</p></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="footerContent">Footer (HTML)</label>
+      <textarea id="footerContent" rows="5"><p>&copy; 2025 rozgardesk.in. All rights reserved. | <a href='#'>Contact Us</a></p></textarea>
+    </div>
+
+  </div>
+  
+  <div id="notificationBar"></div>
+
+<script>
+/* === CMS logic with section + link builders and color pickers === */
+document.addEventListener('DOMContentLoaded', ()=> {
+  // Elements
+  const websiteNameInput = document.getElementById('websiteName');
+  const metaTagsInput = document.getElementById('metaTags');
+  const adSenseScriptInput = document.getElementById('adSenseScript');
+  const pageHeaderContentInput = document.getElementById('pageHeaderContent');
+  const jobTableHeadingInput = document.getElementById('jobTableHeading');
+  const columnHeadersInput = document.getElementById('columnHeaders'); 
+  const mainBlogContentInput = document.getElementById('mainBlogContent');
+  const footerContentInput = document.getElementById('footerContent');
+
+  const leftSectionsContainer = document.getElementById('leftSectionsContainer');
+  const rightSectionsContainer = document.getElementById('rightSectionsContainer');
+  const addLeftSectionBtn = document.getElementById('addLeftSection');
+  const addRightSectionBtn = document.getElementById('addRightSection');
+  const syncSidebarsCheckbox = document.getElementById('syncSidebars');
+  // NEW SIDEBAR TOGGLES
+  const showLeftSidebarCheckbox = document.getElementById('showLeftSidebar');
+  const showRightSidebarCheckbox = document.getElementById('showRightSidebar');
+
+  const tableEditorRows = document.getElementById('tableEditorRows');
+  const addNewRowBtn = document.getElementById('addNewRow'); 
+
+  const restoreJsonInput = document.getElementById('restoreJsonInput');
+  const saveConfigBtn = document.getElementById('saveConfig');
+  const notificationBar = document.getElementById('notificationBar'); // New element ref
+  const SAVE_CONFIG_KEY = 'cmsConfig_rozgardesk_v5_new_layout'; // Changed key to reflect new layout
+
+  /* ------------------ Notification Function ------------------ */
+  function showNotification(message, isError = false) {
+    notificationBar.textContent = message;
+    notificationBar.style.backgroundColor = isError ? '#f44336' : '#4CAF50';
+    notificationBar.classList.add('show');
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+      notificationBar.classList.remove('show');
+    }, 3000);
+  }
+
+  /* ------------------ Helpers ------------------ */
+  function el(tag, props={}, children=[]) {
+    const e = document.createElement(tag);
+    for (const k in props) {
+      if (k === 'class') e.className = props[k];
+      else if (k === 'html') e.innerHTML = props[k];
+      else e.setAttribute(k, props[k]);
+    }
+    children.forEach(c => e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+    return e;
+  }
+
+  // Generate unique id
+  function uid(prefix='id') { return prefix + '_' + Math.random().toString(36).slice(2,9); }
+
+  /* ------------------ Sidebar Section UI ------------------ */
+  function createSectionUI(side, data = {}) {
+    // side = 'left' or 'right'
+    const container = el('div', {class: 'section-card'});
+    // Heading text input
+    const headingLabel = el('label', {class:'job-card-label'}, []);
+    headingLabel.textContent = 'Section Heading';
+    const headingInput = el('input', {type:'text'});
+    headingInput.value = data.heading || '';
+
+    // Heading bg color
+    const headingColorLabel = el('label', {class:'job-card-label'}, []); 
+    headingColorLabel.textContent = 'Heading Background Color';
+    const headingColorInput = el('input', {type:'color'});
+    headingColorInput.value = data.headingBg || '#f44336'; 
+
+    // Heading text color
+    const headingTextColorLabel = el('label', {class:'job-card-label'}, []); 
+    headingTextColorLabel.textContent = 'Heading Text Color';
+    const headingTextColorInput = el('input', {type:'color'});
+    headingTextColorInput.value = data.headingTextColor || '#ffffff';
+
+    // Section bg color
+    const sectionBgLabel = el('label', {class:'job-card-label'}, []); 
+    sectionBgLabel.textContent = 'Section Background Color';
+    const sectionBgInput = el('input', {type:'color'});
+    sectionBgInput.value = data.sectionBg || '#ffffff';
+
+    // Links container
+    const linksList = el('div', {class:'links-list'});
+
+    // Add Link button
+    const addLinkBtn = el('button', {class:'small-btn'}, []);
+    addLinkBtn.textContent = '➕ Add Link';
+
+    // Remove section button
+    const removeSectionBtn = el('button', {class:'small-btn danger'}, []);
+    removeSectionBtn.textContent = 'Remove Section';
+
+    // Append elements
+    container.appendChild(headingLabel);
+    container.appendChild(headingInput);
+
+    // Grouping color inputs
+    container.appendChild(el('div', {class:'form-row'}, [
+        el('div', {class:'half'}, [headingColorLabel, headingColorInput]),
+        el('div', {class:'half'}, [headingTextColorLabel, headingTextColorInput])
+    ]));
+    container.appendChild(sectionBgLabel);
+    container.appendChild(sectionBgInput);
+
+    container.appendChild(el('div', {class:'section-actions'}, [addLinkBtn, removeSectionBtn]));
+    container.appendChild(linksList);
+
+    // Add pre-existing links if provided
+    // CRITICAL: We reverse the order for display to ensure the newest entry from the saved config appears at the top 
+    // when we append them sequentially. (Data is saved newest-first, but append adds to the bottom).
+    [...(data.links || [])].reverse().forEach(l => addLinkRow(linksList, l));
+
+    // Add link handler
+    addLinkBtn.addEventListener('click', ()=> {
+      addLinkRow(linksList, {text:'New Link', url:'#', color:'#1565c0'});
+      triggerSyncIfNeeded(side);
+    });
+
+    // Remove section
+    removeSectionBtn.addEventListener('click', ()=> {
+      container.remove();
+      triggerSyncIfNeeded(side);
+    });
+
+    // On inputs change -> sync if needed
+    [headingInput, headingColorInput, headingTextColorInput, sectionBgInput].forEach(inp => {
+      inp.addEventListener('input', ()=> triggerSyncIfNeeded(side));
+    });
+
+    // return an object to read values easily
+    container.getSectionData = () => {
+      const links = [];
+      // The links are prepended to the DOM, so they appear newest-first. 
+      // We read them in DOM order (top-to-bottom) which is the desired output order (newest-first).
+      linksList.querySelectorAll('.link-row').forEach(row => {
+        const txt = row.querySelector('.link-text').value || '';
+        const url = row.querySelector('.link-url').value || '#';
+        const color = row.querySelector('.link-color').value || '#1565c0';
+        links.push({text:txt, url:url, color:color});
+      });
+      return {
+        heading: headingInput.value || '',
+        headingBg: headingColorInput.value,
+        headingTextColor: headingTextColorInput.value,
+        sectionBg: sectionBgInput.value,
+        links
+      };
+    };
+
+    // helper to set data (used in syncing)
+    container.setSectionData = (d) => {
+      headingInput.value = d.heading || '';
+      headingColorInput.value = d.headingBg || '#f44336';
+      headingTextColorInput.value = d.headingTextColor || '#ffffff';
+      sectionBgInput.value = d.sectionBg || '#ffffff';
+      linksList.innerHTML = '';
+      // CRITICAL: Must reverse to apply the newest-first array in correct visual order (newest on top)
+      [...(d.links || [])].reverse().forEach(l => addLinkRow(linksList, l));
+    };
+
+    return container;
+  }
+
+  function addLinkRow(linksList, data={}) {
+    const row = el('div', {class:'link-row'});
+    const txt = el('input', {type:'text', class:'link-text'});
+    txt.value = data.text || '';
+    const url = el('input', {type:'text', class:'link-url', placeholder:'https://...'});
+    url.value = data.url || '#';
+    const color = el('input', {type:'color', class:'link-color'});
+    color.value = data.color || '#1565c0';
+    const rm = el('button', {class:'small-btn ghost'}, []);
+    rm.textContent = 'Remove';
+    rm.addEventListener('click', ()=> { row.remove(); triggerSyncIfNeededCurrently(); });
+
+    [txt, url, color].forEach(i => i.addEventListener('input', ()=> triggerSyncIfNeededCurrently()));
+
+    row.appendChild(color); // put color picker first for easy access
+    row.appendChild(txt);
+    row.appendChild(url);
+    row.appendChild(rm);
+    
+    // *** PREPEND is correctly used here to ensure the latest link is on top ***
+    linksList.prepend(row);
+  }
+
+  /* ------------------ Section management for left/right (PREPEND FIX APPLIED) ------------------ */
+  function addLeftSection(data) {
+    const ui = createSectionUI('left', data);
+    leftSectionsContainer.prepend(ui); // ADDED: PREPEND instead of appendChild
+    triggerSyncIfNeeded('left');
+  }
+  function addRightSection(data) {
+    const ui = createSectionUI('right', data);
+    rightSectionsContainer.prepend(ui); // ADDED: PREPEND instead of appendChild
+    triggerSyncIfNeeded('right');
+  }
+
+  addLeftSectionBtn.addEventListener('click', ()=> addLeftSection());
+  addRightSectionBtn.addEventListener('click', ()=> addRightSection());
+
+  /* ------------------ Sync logic ------------------ */
+  function gatherSidebarData(container) {
+    const out = [];
+    container.querySelectorAll('.section-card').forEach(sec => {
+      if (typeof sec.getSectionData === 'function') out.push(sec.getSectionData());
+    });
+    return out;
+  }
+  function applySidebarData(container, sectionsData) {
+    container.innerHTML = '';
+    // Use appendChild here: sectionsData is expected to be newest-first,
+    // so appending them in order builds the correct visual list (top-to-bottom).
+    (sectionsData || []).forEach(s => {
+      const secUI = createSectionUI('', s);
+      secUI.setSectionData(s);
+      container.appendChild(secUI); 
+    });
+  }
+
+  function triggerSyncIfNeeded(changedSide) {
+    if (!syncSidebarsCheckbox.checked) return;
+    if (changedSide === 'left') {
+      const data = gatherSidebarData(leftSectionsContainer);
+      applySidebarData(rightSectionsContainer, data);
+    } else {
+      const data = gatherSidebarData(rightSectionsContainer);
+      applySidebarData(leftSectionsContainer, data);
+    }
+  }
+  function triggerSyncIfNeededCurrently() {
+    if (!syncSidebarsCheckbox.checked) return;
+    const leftHas = leftSectionsContainer.querySelectorAll('.section-card').length > 0;
+    const rightHas = rightSectionsContainer.querySelectorAll('.section-card').length > 0;
+    if (leftHas) triggerSyncIfNeeded('left');
+    else if (rightHas) triggerSyncIfNeeded('right');
+  }
+
+  syncSidebarsCheckbox.addEventListener('change', ()=>{
+    if (syncSidebarsCheckbox.checked) {
+      triggerSyncIfNeeded('left');
+    }
+  });
+
+  /* ------------------ Job rows editor (DYNAMIC COLUMNS + LINK) ------------------ */
+  function getActiveColumns() {
+    return (columnHeadersInput.value || '')
+        .split(',')
+        .map(h => h.trim())
+        .filter(h => h);
+  }
+
+  function createJobCard(data = {}) {
+    // 1. Get current columns from the input field
+    const columns = getActiveColumns();
+    const linkUrl = data.linkUrl || '#'; 
+
+    if (columns.length === 0) {
+      if (tableEditorRows.children.length === 0 || tableEditorRows.children[0].tagName !== 'P') {
+          const p = el('p', {class:'muted'}, ['Please define columns in the "Job Table Data Columns Definition" section above to add job rows.']);
+          tableEditorRows.innerHTML = '';
+          tableEditorRows.appendChild(p);
+      }
+      return;
+    }
+    
+    // Remove the instruction paragraph if it exists
+    if (tableEditorRows.children[0] && tableEditorRows.children[0].tagName === 'P') {
+        tableEditorRows.innerHTML = '';
+    }
+
+    const newRowDiv = document.createElement('div');
+    newRowDiv.classList.add('job-card');
+    
+    // data.values is an array of cell content
+    const rowData = data.values || [];
+    
+    let innerHTML = `<button class="remove-row-btn">Remove</button>`;
+
+    // Create input fields dynamically for data columns (compact layout)
+    columns.forEach((header, index) => {
+        const value = rowData[index] || ''; 
+        innerHTML += `
+            <div class="job-field-group">
+                <label class="job-card-label">${header}</label>
+                <input type="text" data-column-index="${index}" placeholder="${header}" value="${value}" class="data-cell-input">
+            </div>
+        `;
+    });
+    
+    // Create input field for the mandatory View Link (full width)
+    innerHTML += `
+        <div class="link-url-input-group">
+            <label class="job-card-label" style="color:#2196f3; font-weight: bold;">View Details Link (URL)</label>
+            <input type="text" placeholder="e.g. blogspot/rrbntpc.html or https://example.com/job-post" value="${linkUrl}" class="link-url-input">
+        </div>
+    `;
+
+    // Set content and add listener
+    newRowDiv.innerHTML = innerHTML;
+    newRowDiv.querySelector('.remove-row-btn').addEventListener('click', ()=>{
+      newRowDiv.remove();
+    });
+    
+    // This already uses PREPEND, ensuring newest row is always on top.
+    tableEditorRows.prepend(newRowDiv); 
+  }
+
+  // Listener to redraw job cards when columns change
+  columnHeadersInput.addEventListener('input', () => {
+    // Get all existing data from the current (old) layout
+    const existingRowsData = [];
+    tableEditorRows.querySelectorAll('.job-card').forEach(card => {
+        const values = Array.from(card.querySelectorAll('.data-cell-input')).map(input => input.value);
+        const linkUrl = card.querySelector('.link-url-input').value;
+        existingRowsData.push({ values: values, linkUrl: linkUrl });
+    });
+    
+    // Clear and redraw all cards with the new column structure
+    tableEditorRows.innerHTML = '';
+    existingRowsData.reverse().forEach(r => createJobCard(r));
+    
+    // If no existing data, add one empty row if columns exist
+    if (existingRowsData.length === 0 && getActiveColumns().length > 0) {
+        createJobCard({values: ['Software Engineer (Long Job Title to Test Wrapping)', 'IT Department', 'B.Tech/MCA/PhD (Very long qualification description)', '22-35 Yrs', '2025-12-31'], linkUrl:'#'});
+    }
+  });
+
+  // Button to add a new row (FIXED)
+  addNewRowBtn.addEventListener('click', ()=> createJobCard());
+
+  /* ------------------ Config getters and apply ------------------ */
+  function getSidebarDataFromContainer(container) {
+    const out = [];
+    container.querySelectorAll('.section-card').forEach(sec => {
+      if (typeof sec.getSectionData === 'function') out.push(sec.getSectionData());
+    });
+    return out;
+  }
+
+  function getCurrentConfig() {
+    const cfg = {
+      websiteName: websiteNameInput.value,
+      metaTags: metaTagsInput.value,
+      adSenseScript: adSenseScriptInput.value,
+      pageHeaderContent: pageHeaderContentInput.value,
+      jobTableHeading: jobTableHeadingInput.value,
+      columnHeaders: getActiveColumns(), 
+      // NEW CONFIG ITEMS
+      showLeftSidebar: showLeftSidebarCheckbox.checked,
+      showRightSidebar: showRightSidebarCheckbox.checked,
+      // END NEW CONFIG
+      leftSidebar: getSidebarDataFromContainer(leftSectionsContainer),
+      rightSidebar: getSidebarDataFromContainer(rightSectionsContainer),
+      tableRows: [],
+      mainBlogContent: mainBlogContentInput.value,
+      footerContent: footerContentInput.value
+    };
+    // collect job rows in order appearance (preprended latest first)
+    tableEditorRows.querySelectorAll('.job-card').forEach(card => {
+        const values = Array.from(card.querySelectorAll('.data-cell-input')).map(input => input.value);
+        const linkUrl = card.querySelector('.link-url-input').value;
+        cfg.tableRows.push({ values: values, linkUrl: linkUrl });
+    });
+    return cfg;
+  }
+
+  function applyConfig(cfg) {
+    websiteNameInput.value = cfg.websiteName || 'rozgardesk.in';
+    metaTagsInput.value = cfg.metaTags || '';
+    adSenseScriptInput.value = cfg.adSenseScript || '';
+    pageHeaderContentInput.value = cfg.pageHeaderContent || '';
+    jobTableHeadingInput.value = cfg.jobTableHeading || 'Latest Job Openings';
+    
+    // NEW CONFIG APPLY
+    showLeftSidebarCheckbox.checked = cfg.showLeftSidebar !== undefined ? cfg.showLeftSidebar : true;
+    showRightSidebarCheckbox.checked = cfg.showRightSidebar !== undefined ? cfg.showRightSidebar : true;
+    // END NEW CONFIG
+
+    // Set columns and trigger redraw of rows
+    const defaultCols = "Job Title, Department, Education Qualification, Age Limit, Last Date";
+    columnHeadersInput.value = cfg.columnHeaders && cfg.columnHeaders.length ? cfg.columnHeaders.join(', ') : defaultCols;
+
+    mainBlogContentInput.value = cfg.mainBlogContent || '';
+    footerContentInput.value = cfg.footerContent || '';
+
+    // Left sidebar
+    leftSectionsContainer.innerHTML = '';
+    if (Array.isArray(cfg.leftSidebar) && cfg.leftSidebar.length) {
+      // Use appendChild here to correctly display the newest-first array from the config
+      cfg.leftSidebar.forEach(s => {
+        const sec = createSectionUI('left', s);
+        sec.setSectionData(s);
+        leftSectionsContainer.appendChild(sec);
+      });
+    } else {
+      // DEFAULT LOAD uses addLeftSection, which now uses PREPEND.
+      addLeftSection({heading:'Department Wise Govt Jobs', headingBg:'#f44336', headingTextColor:'#fff', sectionBg:'#fff', links:[
+        {text:'Bank',url:'#',color:'#1565c0'},
+        {text:'Defence',url:'#',color:'#1565c0'}
+      ]});
+    }
+
+    // Right sidebar
+    rightSectionsContainer.innerHTML = '';
+    if (Array.isArray(cfg.rightSidebar) && cfg.rightSidebar.length) {
+      // Use appendChild here to correctly display the newest-first array from the config
+      cfg.rightSidebar.forEach(s => {
+        const sec = createSectionUI('right', s);
+        sec.setSectionData(s);
+        rightSectionsContainer.appendChild(sec);
+      });
+    } else {
+      // DEFAULT LOAD uses addRightSection, which now uses PREPEND.
+      addRightSection({heading:'Department Wise Govt Jobs', headingBg:'#f44336', headingTextColor:'#fff', sectionBg:'#fff', links:[
+        {text:'Police',url:'#',color:'#1565c0'}
+      ]});
+    }
+
+    // job rows - must be called *after* columnHeadersInput is set
+    tableEditorRows.innerHTML = '';
+    if (Array.isArray(cfg.tableRows) && cfg.tableRows.length) {
+      // reverse for editor display (so latest edited appear first via prepend)
+      [...cfg.tableRows].reverse().forEach(r => createJobCard(r));
+    } else if (getActiveColumns().length > 0) {
+      // Add a single default row if columns are defined
+      createJobCard({values: ['Software Engineer (Long Job Title to Test Wrapping)', 'IT Department', 'B.Tech/MCA/PhD (Very long qualification description)', '22-35 Yrs', '2025-12-31'], linkUrl:'#'});
+    }
+  }
+
+  /* ------------------ Buttons: Download JSON, Restore, Save Config ------------------ */
+  document.getElementById('downloadPureHTML').addEventListener('click', ()=> {
+    const html = generateDownloadHTML();
+    const blob = new Blob([html], {type:'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${websiteNameInput.value.replace(/\s/g,'_')}_page.html`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    showNotification('✅ Pure HTML downloaded successfully.');
+  });
+
+  document.getElementById('downloadEdits').addEventListener('click', ()=> {
+    const config = getCurrentConfig();
+    // reverse rows to chronological order before saving externally
+    config.tableRows.reverse();
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+    const a = document.createElement('a');
+    a.href = dataStr;
+    a.download = `${config.websiteName.replace(/\s/g,'_')}_edits.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    showNotification('✅ Edits downloaded as JSON successfully.');
+  });
+
+  document.getElementById('restoreEdits').addEventListener('click', ()=> restoreJsonInput.click());
+  restoreJsonInput.addEventListener('change', (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const cfg = JSON.parse(ev.target.result);
+        if (cfg.tableRows) cfg.tableRows = cfg.tableRows; // already handled
+        applyConfig(cfg);
+        showNotification('✅ Config restored successfully from file.');
+      } catch (err) {
+        showNotification('❌ Invalid JSON file. Restore failed.', true);
+        console.error('❌ Invalid JSON file. Restore failed.', err);
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  saveConfigBtn.addEventListener('click', ()=> {
+    localStorage.setItem(SAVE_CONFIG_KEY, JSON.stringify(getCurrentConfig()));
+    showNotification('✅ Configuration saved to browser storage.');
+  });
+
+  /* ------------------ Download Pure HTML & Show Preview ------------------ */
+  function generateDownloadHTML() {
+    const cfg = getCurrentConfig();
+    const columns = cfg.columnHeaders;
+    const numDataCols = columns.length;
+    const totalCols = numDataCols + 1; // +1 for the View Details link column
+
+    if (numDataCols === 0) {
+        return `<!doctype html><html><head><title>${escapeHtml(cfg.websiteName||'')}</title></head><body><p style="text-align:center;padding-top:50px;">Please define at least one column in the CMS editor to generate the job table.</p></body></html>`;
+    }
+
+    // CRUCIAL: Dynamic width calculation to force all columns to fit the screen
+    // We give 15% to the final 'View' column, and distribute the remaining 85% among data columns
+    const viewColWidthPercent = 15;
+    const remainingWidthPercent = 100 - viewColWidthPercent;
+    const dataColWidthPercent = remainingWidthPercent / numDataCols;
+
+    const dynamicTableStyles = columns.map((_, index) => 
+        // Assign the calculated width to all data columns
+        `th:nth-child(${index + 1}), td:nth-child(${index + 1}) { width: ${dataColWidthPercent.toFixed(2)}%; }`
+    ).join('\n');
+    // Assign the fixed width to the final 'View' column
+    const viewBtnWidthCSS = `th:nth-child(${totalCols}), td:nth-child(${totalCols}) { width: ${viewColWidthPercent.toFixed(2)}%; }`;
+    
+    // Build left and right HTML
+    function buildSidebarHTML(sideData) {
+      let html = '';
+      (sideData || []).forEach(section => {
+        const secBg = section.sectionBg || '#ffffff';
+        const headingBg = section.headingBg || '#f44336';
+        const headingColor = section.headingTextColor || '#ffffff';
+        html += `<div class="sidebar-section" style="background:${secBg};padding:10px;margin-bottom:12px;border-radius:4px;border: 1px solid #e0e0e0;">`;
+        html += `<h3 style="margin:0 0 8px;padding:6px;color:${headingColor};background:${headingBg};border-radius:3px;font-size:15px;">${escapeHtml(section.heading||'')}</h3>`;
+        html += `<ul style="margin:6px 0 0;padding-left:18px;list-style:disc;">`;
+        // Links are already stored newest-first, so loop normally to build list top-down
+        (section.links || []).forEach(l => {
+          html += `<li style="margin-bottom:6px;"><a href="${escapeAttr(l.url||'#')}" style="color:${l.color||'#1565c0'};text-decoration:underline;">${escapeHtml(l.text||'')}</a></li>`;
+        });
+        html += `</ul></div>`;
+      });
+      return html;
+    }
+
+    // Build table head
+    let tableHeadHTML = `<tr>${columns.map(h => `<th>${escapeHtml(h)}</th>`).join('')}<th>View Details</th></tr>`;
+
+    // Build table rows
+    let rowsHTML = '';
+    // final page should list newest first (as stored in config)
+    const finalRows = [...(cfg.tableRows || [])];
+    finalRows.forEach((r) => {
+        let rowDataHTML = '';
+        // r.values is an array of column data
+        (r.values || []).forEach(cellValue => {
+            rowDataHTML += `<td>${escapeHtml(cellValue||'')}</td>`;
+        });
+        
+        // Ensure row has the correct number of cells (to match header count)
+        while (r.values.length < numDataCols) {
+            rowDataHTML += `<td></td>`;
+        }
+
+        // Add the final View Details Link column (r.linkUrl is the source)
+        const viewLink = escapeAttr(r.linkUrl || '#');
+        rowsHTML += `<tr>
+            ${rowDataHTML}
+            <td><a class="view-btn" href="${viewLink}" target="_blank">View Details</a></td>
+        </tr>`;
+    });
+
+    // --- NEW LOGIC FOR SIDEBAR TOGGLE ---
+    const showLeft = cfg.showLeftSidebar && (cfg.leftSidebar && cfg.leftSidebar.length > 0);
+    const showRight = cfg.showRightSidebar && (cfg.rightSidebar && cfg.rightSidebar.length > 0);
+    const leftWidth = showLeft ? '250px' : '0';
+    const rightWidth = showRight ? '250px' : '0';
+
+    // page head & style
+    const head = `<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>${escapeHtml(cfg.websiteName||'')}</title>${cfg.metaTags||''}`;
+    
+    // UPDATED CSS for full responsiveness and dynamic sidebar widths
+    const style = `<style>
+      body{font-family:'Segoe UI',Tahoma, sans-serif;margin:0;padding:0;background:#f4f7f9;color:#333;line-height:1.4; overflow-x: hidden; } /* Ensure no overall page scroll */
+      
+      /* CSS Variables for Dynamic Layout */
+      .page-wrapper {
+        --left-width: ${leftWidth};
+        --right-width: ${rightWidth};
+        /* Use flexbox for dynamic resizing */
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        width:100%;
+        margin:0 auto;
+        padding:20px;
+        box-sizing:border-box;
+        max-width: 100%;
+      }
+
+      /* Container to make the wide table content horizontally scrollable */
+      .table-container { 
+        width: 100%; 
+        overflow-x: auto; 
+        margin-top: 12px; 
+        -webkit-overflow-scrolling: touch; 
+      }
+
+      .sidebar{
+        box-sizing:border-box;
+        flex-shrink:0; 
+        overflow: hidden; 
+        height: auto;
+      }
+      
+      /* New: Use CSS variables to control width and visibility based on user input */
+      .sidebar.left {
+        width: var(--left-width);
+        min-width: var(--left-width);
+        max-width: var(--left-width);
+        display: ${showLeft ? 'block' : 'none'};
+      }
+      .sidebar.right {
+        width: var(--right-width);
+        min-width: var(--right-width);
+        max-width: var(--right-width);
+        display: ${showRight ? 'block' : 'none'};
+      }
+
+      /* Main content takes up remaining space and has padding */
+      .main{
+        flex-grow:1;
+        flex-shrink:1;
+        flex-basis: 0; /* Important for flex-grow to work correctly */
+        background:#fff;
+        padding:18px;
+        border-radius:8px;
+        box-shadow:0 2px 8px rgba(0,0,0,0.08); 
+        min-width: 0; /* Allows shrinking */
+      }
+      
+      /* --- TABLE STYLES: Allow content to wrap, but keep fixed-table layout --- */
+      table{
+        width:100%; /* Important: This width is for the table inside the scrollable container */
+        min-width: 800px; /* Set a reasonable minimum width for the table itself to prevent excessive squishing */
+        border-collapse:collapse;
+        border-spacing: 0;
+        table-layout: fixed; /* Keep columns predictable */
+      }
+      th,td{
+        border:1px solid #ddd;
+        padding:8px 4px;
+        text-align:left;
+        word-wrap: break-word; 
+        font-size: 13px;
+        vertical-align: top;
+      } 
+      th{background:#e3f2fd;color:#0d47a1; font-size: 14px;}
+      
+      /* Inject dynamic widths here */
+      ${dynamicTableStyles}
+      ${viewBtnWidthCSS}
+
+      h2{color:#0d47a1;margin-top:0}
+      .footer{margin-top:20px;padding:12px;background:#1976d2;color:#fff;border-radius:6px;text-align:center}
+      /* View Details button is an A tag styled to look like a button */
+      a.view-btn{background:#2196f3;color:#fff;padding:4px 6px;border-radius:4px;text-decoration:none; display: inline-block; font-size: 12px; white-space: nowrap; transition: background 0.2s;}
+      a.view-btn:hover { background: #1976d2; }
+      
+      /* --- RESPONSIVENESS: Stacked Layout for Mobile --- */
+      @media(max-width:768px){
+        /* Main page wrapper becomes vertical stack */
+        .page-wrapper{
+          flex-direction: column; /* Stack vertically on small screens */
+          max-width: 100%;
+          padding: 0;
+          gap: 0;
+        }
+        
+        /* Sidebars take full width and need a little padding/margin back */
+        .sidebar{
+          width:100% !important; 
+          min-width: 100% !important;
+          max-width: 100% !important;
+          padding: 10px; 
+          margin-bottom: 10px; 
+          box-shadow: 0 1px 3px rgba(0,0,0,0.08); /* Optional shadow for separation */
+          background: #fff;
+          /* Force display on mobile if content exists, even if toggle is off, 
+             as a visible sidebar is generally expected on mobile if it has content */
+          display: block !important; 
+        }
+        /* Mobile: sidebars appear above main content */
+        .sidebar.left { order: 1; }
+        .main { order: 2; }
+        .sidebar.right { order: 3; }
+        
+        /* Main content takes full width and removes desktop specific styling */
+        .main{
+          width:100%; 
+          padding: 10px; 
+          border-radius: 0; 
+          box-shadow: none;
+          margin-bottom: 10px;
+        }
+        
+        /* Fix Sidebar Section spacing in stacked view */
+        .sidebar-section { border-radius: 0; }
+        
+        /* Table is handled by .table-container now, no need for complex table CSS */
+      }
+
+    </style>`;
+
+    const leftHTML = buildSidebarHTML(cfg.leftSidebar || []);
+    const rightHTML = buildSidebarHTML(cfg.rightSidebar || []);
+
+    const full = `<!doctype html><html><head>${head}${style}</head><body>${cfg.adSenseScript || ''}
+    
+    <div class="page-wrapper">
+      <div class="sidebar left">${leftHTML}</div>
+      <div class="main">
+        ${cfg.pageHeaderContent || ''}
+        <h2>${escapeHtml(cfg.jobTableHeading||'Latest Jobs')}</h2>
+        
+        <div class="table-container"> 
+        <table><thead>${tableHeadHTML}</thead>
+        <tbody>${rowsHTML}</tbody></table></div>
+        
+        <div class="main-blog">${cfg.mainBlogContent || ''}</div>
+        <div class="footer">${cfg.footerContent || ''}</div>
+      </div>
+      <div class="sidebar right">${rightHTML}</div>
+    </div></body></html>`;
+
+    return full;
+  }
+
+  document.getElementById('showPreview').addEventListener('click', ()=> {
+    const html = generateDownloadHTML();
+    const win = window.open('', '_blank');
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    showNotification('👀 Preview opened in new tab.');
+  });
+
+  /* ------------------ Restore saved config on load ------------------ */
+  (function loadConfig() {
+    const saved = localStorage.getItem(SAVE_CONFIG_KEY);
+    if (saved) {
+      try { const cfg = JSON.parse(saved); applyConfig(cfg); showNotification('✅ Configuration loaded from last session.'); }
+      catch(e) { console.error('❌ Configuration load failed:', e); localStorage.removeItem(SAVE_CONFIG_KEY); applyConfig({}); }
+    } else {
+      applyConfig({});
+    }
+  })();
+
+  /* ------------------ Small utility escape helpers ------------------ */
+  function escapeHtml(s='') {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escapeAttr(s='') {
+    return String(s).replace(/"/g,'&quot;').replace(/'/g,"&#39;");
+  }
+
+  /* ------------------ Expose quick save on Ctrl+S (optional) ------------------ */
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      localStorage.setItem(SAVE_CONFIG_KEY, JSON.stringify(getCurrentConfig()));
+      showNotification('✅ Saved to browser storage (Ctrl+S).');
+    }
+  });
+
+}); // DOMContentLoaded end
+</script>
+</body>
+</html>
