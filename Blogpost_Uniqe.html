@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline HTML CMS Editor (New Tab Preview)</title>
+    
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    
+    <style>
+        /* Custom styles for the CMS controls and mobile responsiveness */
+        body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
+        .editor-area { min-height: 10rem; }
+        
+        .tab-button.active {
+            background-color: #1e40af; /* Blue-800 */
+            color: white;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        /* Notification Bar */
+        #notification-bar {
+            position: fixed;
+            top: -100px; /* Start off-screen */
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-weight: 500;
+            z-index: 1000;
+            transition: top 0.4s ease-in-out;
+        }
+        
+        /* HIDDEN PREVIEW STYLES: Only to show the user what will be opened */
+        #preview-container {
+            border: 2px dashed #ccc;
+            background-color: #fff;
+            padding: 20px;
+            text-align: center;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px;
+        }
+        
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="notification-bar"></div>
+
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-2">Offline Single-File CMS</h1>
+            <p class="text-gray-500">Edit content, layout, and colors. Changes are saved locally in your browser.</p>
+        </header>
+
+        <div class="flex flex-wrap justify-center gap-4 mb-8">
+            <button onclick="handleDownloadJSON()" class="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-150 shadow-md">
+                <i data-lucide="download" class="w-5 h-5 mr-2"></i> Download JSON Edits
+            </button>
+            <label class="flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition duration-150 shadow-md cursor-pointer">
+                <i data-lucide="upload" class="w-5 h-5 mr-2"></i> Restore JSON Edits
+                <input type="file" accept=".json" id="restoreJsonInput" onchange="handleRestoreJSON(event)" class="hidden">
+            </label>
+            <button onclick="handleDownloadPureHTML()" class="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-150 shadow-md">
+                <i data-lucide="file-text" class="w-5 h-5 mr-2"></i> Download Pure HTML
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <div id="control-panel" class="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg h-full lg:sticky lg:top-4">
+                <div id="tabs" class="flex flex-wrap border-b border-gray-200 mb-6">
+                    <button class="tab-button active p-3 text-sm font-medium transition duration-150" data-tab="layout">Layout</button>
+                    <button class="tab-button p-3 text-sm font-medium transition duration-150" data-tab="colors">Colors</button>
+                    <button class="tab-button p-3 text-sm font-medium transition duration-150" data-tab="header">Header</button>
+                    <button class="tab-button p-3 text-sm font-medium transition duration-150" data-tab="main">Content</button>
+                    <button class="tab-button p-3 text-sm font-medium transition duration-150" data-tab="footer">Footer</button>
+                    <button class="tab-button p-3 text-sm font-medium transition duration-150" data-tab="left">Left Bar</button>
+                    <button class="tab-button p-3 text-sm font-medium transition duration-150" data-tab="right">Right Bar</button>
+                </div>
+
+                <div id="tab-content" class="space-y-6">
+                    <div data-tab-content="layout" class="tab-content">
+                        <h3 class="text-xl font-bold mb-4 text-blue-700">Layout Controls</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <label for="isLeftSidebarVisible" class="text-sm font-medium">Left Sidebar On/Off</label>
+                                <input type="checkbox" id="isLeftSidebarVisible" class="w-5 h-5 text-blue-600 rounded" onchange="updateState('isLeftSidebarVisible', this.checked)">
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <label for="isRightSidebarVisible" class="text-sm font-medium">Right Sidebar On/Off</label>
+                                <input type="checkbox" id="isRightSidebarVisible" class="w-5 h-5 text-blue-600 rounded" onchange="updateState('isRightSidebarVisible', this.checked)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div data-tab-content="colors" class="tab-content hidden">
+                        <h3 class="text-xl font-bold mb-4 text-blue-700">Color Settings</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="color-linkColor" class="block text-sm font-medium text-gray-700 mb-1">Link Color</label>
+                                <input type="color" id="color-linkColor" class="w-full h-10 rounded-lg border-2 border-gray-300 cursor-pointer" onchange="updateColor('linkColor', this.value)">
+                            </div>
+                            <div>
+                                <label for="color-leftSidebarBg" class="block text-sm font-medium text-gray-700 mb-1">Left Sidebar Background</label>
+                                <input type="color" id="color-leftSidebarBg" class="w-full h-10 rounded-lg border-2 border-gray-300 cursor-pointer" onchange="updateColor('leftSidebarBg', this.value)">
+                            </div>
+                            <div>
+                                <label for="color-rightSidebarBg" class="block text-sm font-medium text-gray-700 mb-1">Right Sidebar Background</label>
+                                <input type="color" id="color-rightSidebarBg" class="w-full h-10 rounded-lg border-2 border-gray-300 cursor-pointer" onchange="updateColor('rightSidebarBg', this.value)">
+                            </div>
+                            <div>
+                                <label for="color-mainBg" class="block text-sm font-medium text-gray-700 mb-1">Main Content Background</label>
+                                <input type="color" id="color-mainBg" class="w-full h-10 rounded-lg border-2 border-gray-300 cursor-pointer" onchange="updateColor('mainBg', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div data-tab-content="header" class="tab-content hidden">
+                        <h3 class="text-xl font-bold mb-4 text-blue-700">Header HTML</h3>
+                        <textarea id="headerHtml" class="editor-area w-full p-3 border rounded-lg font-mono text-sm resize-y" placeholder="Paste Header HTML here..." oninput="updateState('headerHtml', this.value)"></textarea>
+                    </div>
+                    <div data-tab-content="main" class="tab-content hidden">
+                        <h3 class="text-xl font-bold mb-4 text-blue-700">Main Content HTML <span class="text-red-500">(Paste your blog post here)</span></h3>
+                        <textarea id="mainContentHtml" class="w-full h-72 p-3 border rounded-lg font-mono text-sm resize-y" placeholder="Paste your FULL blog post HTML (including tables, styles, etc.)." oninput="updateState('mainContentHtml', this.value)"></textarea>
+                        <p class="text-xs text-green-600 mt-2">Note: Paste your exact, complete HTML content. It will be rendered *perfectly* when you click the 'Open Preview' button.</p>
+                    </div>
+                    <div data-tab-content="footer" class="tab-content hidden">
+                        <h3 class="text-xl font-bold mb-4 text-blue-700">Footer HTML</h3>
+                        <textarea id="footerHtml" class="editor-area w-full p-3 border rounded-lg font-mono text-sm resize-y" placeholder="Paste Footer HTML here..." oninput="updateState('footerHtml', this.value)"></textarea>
+                    </div>
+
+                    <div data-tab-content="left" class="tab-content hidden">
+                        <h3 class="text-xl font-bold mb-4 text-blue-700">Left Sidebar Content</h3>
+                        <div id="leftSidebarEditor"></div>
+                        <button onclick="addSidebarSection('leftSidebar')" class="w-full mt-4 flex items-center justify-center p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-150">
+                            <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i> Add Section
+                        </button>
+                    </div>
+
+                    <div data-tab-content="right" class="tab-content hidden">
+                        <h3 class="text-xl font-bold mb-4 text-blue-700">Right Sidebar Content</h3>
+                        <div id="rightSidebarEditor"></div>
+                        <button onclick="addSidebarSection('rightSidebar')" class="w-full mt-4 flex items-center justify-center p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-150">
+                            <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i> Add Section
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                        <i data-lucide="monitor" class="w-6 h-6 mr-2"></i> Preview Window
+                    </h2>
+                </div>
+                <div id="preview-container">
+                    <h3 class="text-2xl font-bold text-gray-700 mb-4">Ready for Preview!</h3>
+                    <p class="text-gray-500 mb-6">Click the button below to generate and open your final, styled HTML page in a new browser tab.</p>
+                    <button onclick="handleOpenPreviewInNewTab()" class="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 shadow-lg text-lg">
+                        <i data-lucide="external-link" class="w-5 h-5 mr-2"></i> Open Preview in New Tab
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CORE APPLICATION STATE ---
+        const LOCAL_STORAGE_KEY = 'cms_app_state';
+        
+        const DEFAULT_STATE = {
+            headerHtml: '<div style="font-size: 2rem; font-weight: bold; padding: 1rem; background-color: #1d4ed8; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">My Awesome Blog Header</div>',
+            footerHtml: '<p style="text-align: center; padding: 1rem; font-size: 0.875rem; color: #6b7280; border-top: 1px solid #e5e7eb;">© 2025 Powered by Offline CMS</p>',
+            mainContentHtml: '\n<div style="padding: 1rem;">\n  <h1>Main Blog Post Title</h1>\n  <p>This is where your primary content goes. Paste the HTML directly from your source file here. This CMS will wrap it in a proper page structure when you hit "Open Preview in New Tab".</p>\n  <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">\n    <thead><tr><th style="border: 1px solid #ccc; padding: 8px;">Header 1</th><th style="border: 1px solid #ccc; padding: 8px;">Header 2</th></tr></thead>\n    <tbody><tr><td style="border: 1px solid #ccc; padding: 8px;">Data 1</td><td style="border: 1px solid #ccc; padding: 8px;">Data 2</td></tr></tbody>\n  </table>\n</div>',
+            isLeftSidebarVisible: true,
+            isRightSidebarVisible: true,
+            colors: {
+                linkColor: '#10b981', // Emerald 500
+                leftSidebarBg: '#eff6ff', // Blue 50
+                rightSidebarBg: '#f0fdf4', // Green 50
+                mainBg: '#ffffff',
+            },
+            leftSidebar: [
+                { id: 'l1', heading: 'Navigation', links: [{ text: 'Home', url: '#' }, { text: 'About', url: '#' }] },
+                { id: 'l2', heading: 'Archives', links: [{ text: 'October 2025', url: '#' }, { text: 'September 2025', url: '#' }] },
+            ],
+            rightSidebar: [
+                { id: 'r1', heading: 'Related Posts', links: [{ text: 'Offline CMS Guide', url: '#' }, { text: 'Tailwind CSS Tips', url: '#' }] },
+            ],
+        };
+
+        let state = {};
+
+        // --- NEW: Safe Icon Rendering ---
+        function renderIcons() {
+            if (typeof lucide !== 'undefined') {
+                try {
+                    lucide.createIcons();
+                } catch (e) {
+                    console.error("Error creating lucide icons:", e);
+                }
+            } else {
+                console.warn("Lucide library not loaded. Icons will not appear.");
+            }
+        }
+
+        // --- NOTIFICATION SYSTEM ---
+        let notificationTimeout;
+        function showNotification(message, isError = false) {
+            const bar = document.getElementById('notification-bar');
+            if (!bar) return;
+
+            if (notificationTimeout) clearTimeout(notificationTimeout);
+
+            bar.textContent = message;
+            bar.className = isError 
+                ? 'bg-red-500 text-white' 
+                : 'bg-green-500 text-white';
+            
+            bar.style.top = '20px'; 
+
+            notificationTimeout = setTimeout(() => {
+                bar.style.top = '-100px';
+            }, 3000);
+        }
+        
+        // --- STATE MANAGEMENT ---
+
+        function loadState() {
+            let parsedState = {};
+            try {
+                const storedState = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (storedState) {
+                    parsedState = JSON.parse(storedState);
+                }
+            } catch (e) {
+                console.error("Could not parse state from localStorage. Using default state.", e);
+            }
+
+            // Robust state initialization
+            state = {
+                headerHtml: (typeof parsedState.headerHtml === 'string') ? parsedState.headerHtml : DEFAULT_STATE.headerHtml,
+                footerHtml: (typeof parsedState.footerHtml === 'string') ? parsedState.footerHtml : DEFAULT_STATE.footerHtml,
+                mainContentHtml: (typeof parsedState.mainContentHtml === 'string') ? parsedState.mainContentHtml : DEFAULT_STATE.mainContentHtml,
+                isLeftSidebarVisible: (typeof parsedState.isLeftSidebarVisible === 'boolean') ? parsedState.isLeftSidebarVisible : DEFAULT_STATE.isLeftSidebarVisible,
+                isRightSidebarVisible: (typeof parsedState.isRightSidebarVisible === 'boolean') ? parsedState.isRightSidebarVisible : DEFAULT_STATE.isRightSidebarVisible,
+                colors: (typeof parsedState.colors === 'object' && parsedState.colors !== null && !Array.isArray(parsedState.colors)) 
+                    ? { ...DEFAULT_STATE.colors, ...parsedState.colors } 
+                    : DEFAULT_STATE.colors,
+                leftSidebar: Array.isArray(parsedState.leftSidebar) ? parsedState.leftSidebar : DEFAULT_STATE.leftSidebar,
+                rightSidebar: Array.isArray(parsedState.rightSidebar) ? parsedState.rightSidebar : DEFAULT_STATE.rightSidebar,
+            };
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {
+                console.error("Could not save state to localStorage.", e);
+                showNotification("Error saving changes. Changes may not persist.", true);
+            }
+        }
+
+        function updateState(key, value) {
+            state[key] = value;
+            saveState();
+            renderControls(); 
+        }
+
+        function updateColor(key, value) {
+            if (state.colors) {
+                state.colors[key] = value;
+                saveState();
+            }
+        }
+
+        // --- RENDER FUNCTIONS (Controls Only) ---
+
+        function renderControls() {
+            try {
+                document.getElementById('headerHtml').value = state.headerHtml || '';
+                document.getElementById('footerHtml').value = state.footerHtml || '';
+                document.getElementById('mainContentHtml').value = state.mainContentHtml || '';
+                document.getElementById('isLeftSidebarVisible').checked = !!state.isLeftSidebarVisible;
+                document.getElementById('isRightSidebarVisible').checked = !!state.isRightSidebarVisible;
+
+                if (state.colors) {
+                    for (const colorKey in state.colors) {
+                        const input = document.getElementById(`color-${colorKey}`);
+                        if (input) {
+                            input.value = state.colors[colorKey];
+                        }
+                    }
+                }
+
+                renderSidebarEditor('leftSidebar', 'leftSidebarEditor');
+                renderSidebarEditor('rightSidebar', 'rightSidebarEditor');
+            } catch (e) {
+                console.error("Error rendering controls:", e);
+                showNotification("A control panel error occurred.", true);
+            }
+        }
+
+        function renderSidebarEditor(sidebarKey, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return; 
+            
+            const sidebarData = state[sidebarKey] || [];
+            if (!Array.isArray(sidebarData)) return;
+
+            container.innerHTML = sidebarData.map((section, sectionIndex) => `
+                <div class="border border-gray-300 p-4 rounded-lg bg-gray-50 mb-4 shadow-sm" data-section-id="${section.id || ''}">
+                    <div class="flex justify-between items-center mb-2">
+                        <input
+                            type="text"
+                            value="${section.heading || ''}"
+                            oninput="updateSectionHeading('${sidebarKey}', ${sectionIndex}, this.value)"
+                            class="text-lg font-semibold w-full border-b border-blue-500 focus:outline-none bg-transparent"
+                            placeholder="Section Heading"
+                        />
+                        <button onclick="removeSidebarSection('${sidebarKey}', ${sectionIndex})" class="text-red-500 hover:text-red-700 p-1 ml-2">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <div class="space-y-2 py-2">
+                        ${(section.links || []).map((link, linkIndex) => `
+                            <div class="flex space-x-2 items-center" data-link-id="${link.id || ''}">
+                                <input
+                                    type="text"
+                                    value="${link.text || ''}"
+                                    oninput="updateLink('${sidebarKey}', ${sectionIndex}, ${linkIndex}, 'text', this.value)"
+                                    class="w-1/2 p-1 border rounded text-sm"
+                                    placeholder="Link Text"
+                                />
+                                <input
+                                    type="text"
+                                    value="${link.url || ''}"
+                                    oninput="updateLink('${sidebarKey}', ${sectionIndex}, ${linkIndex}, 'url', this.value)"
+                                    class="w-1/2 p-1 border rounded text-sm"
+                                    placeholder="Link URL"
+                                />
+                                <button onclick="removeLink('${sidebarKey}', ${sectionIndex}, ${linkIndex})" class="text-red-400 hover:text-red-600">
+                                    <i data-lucide="minus-circle" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button
+                        onclick="addLink('${sidebarKey}', ${sectionIndex})"
+                        class="mt-3 w-full bg-green-500 text-white py-1 rounded hover:bg-green-600 transition duration-150 text-sm"
+                    >
+                        Add Link
+                    </button>
+                </div>
+            `).join('');
+            
+            renderIcons(); 
+        }
+
+        // --- SIDEBAR MUTATION FUNCTIONS ---
+        
+        function generateUniqueId() {
+            return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function addSidebarSection(sidebarKey) {
+            if (!Array.isArray(state[sidebarKey])) state[sidebarKey] = [];
+            state[sidebarKey].push({ id: generateUniqueId(), heading: 'New Section', links: [{ text: 'New Link', url: '#' }] });
+            saveState();
+            renderControls(); 
+        }
+
+        function removeSidebarSection(sidebarKey, sectionIndex) {
+            const sidebar = state[sidebarKey];
+            if (Array.isArray(sidebar) && sectionIndex >= 0 && sectionIndex < sidebar.length) {
+                sidebar.splice(sectionIndex, 1);
+            } else {
+                showNotification("Cannot remove section.", true);
+            }
+            saveState();
+            renderControls();
+        }
+
+        function updateSectionHeading(sidebarKey, sectionIndex, value) {
+            const section = state[sidebarKey]?.[sectionIndex];
+            if (section) {
+                section.heading = value;
+                saveState();
+                
+            }
+        }
+
+        function addLink(sidebarKey, sectionIndex) {
+            const section = state[sidebarKey]?.[sectionIndex];
+            if (section) {
+                if (!Array.isArray(section.links)) section.links = [];
+                section.links.push({ id: generateUniqueId(), text: 'New Link', url: '#' });
+                saveState();
+                renderControls();
+            }
+        }
+
+        function removeLink(sidebarKey, sectionIndex, linkIndex) {
+            const links = state[sidebarKey]?.[sectionIndex]?.links;
+            if (Array.isArray(links) && linkIndex >= 0 && linkIndex < links.length) {
+                links.splice(linkIndex, 1);
+            } else {
+                showNotification("Cannot remove link.", true);
+            }
+            saveState();
+            renderControls();
+        }
+
+        function updateLink(sidebarKey, sectionIndex, linkIndex, field, value) {
+            const link = state[sidebarKey]?.[sectionIndex]?.links?.[linkIndex];
+            if (link) {
+                link[field] = value;
+                saveState();
+            }
+        }
+
+        // --- PREVIEW / EXPORT FUNCTIONS ---
+        
+        /**
+         * Generates the final, pure HTML page as a string.
+         * Contains the critical fix for the CSS Grid layout issue.
+         */
+        function generatePreviewHtml() {
+            try {
+                const s = state; 
+                
+                const linkColor = s.colors?.linkColor || '#0000ff';
+                const mainBg = s.colors?.mainBg || '#ffffff';
+                const leftBg = s.colors?.leftSidebarBg || '#eff6ff';
+                const rightBg = s.colors?.rightSidebarBg || '#f0fdf4';
+
+                // 1. Generate core CSS with dynamic colors
+                const customCss = `
+    /* Reset and Core Styles */
+    html, body {
+        font-family: 'Inter', sans-serif, Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background-color: ${mainBg};
+    }
+    a {
+        color: ${linkColor};
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Layout Grid */
+    .cms-layout {
+        display: grid;
+        max-width: 1200px;
+        margin: 0 auto;
+        /* CRITICAL FIX: Only include the 250px track if the sidebar is visible. 
+           The implicit nature of CSS Grid handles the missing column better than setting it to '0'. */
+        grid-template-columns: ${s.isLeftSidebarVisible ? '250px' : ''} 1fr ${s.isRightSidebarVisible ? '250px' : ''};
+        min-height: 60vh;
+    }
+    .cms-header, .cms-footer {
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+    }
+    
+    /* Main Content Area */
+    .cms-main {
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-x: hidden; 
+    }
+    .cms-main * { 
+        max-width: 100% !important; 
+        box-sizing: border-box;
+        height: auto;
+    }
+
+    /* Sidebar Styles */
+    .cms-sidebar {
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-wrap: break-word;
+        transition: all 0.3s;
+    }
+    .cms-left-sidebar {
+        background-color: ${leftBg};
+        border-right: ${s.isLeftSidebarVisible ? '1px solid #e0e0e0' : 'none'};
+    }
+    .cms-right-sidebar {
+        background-color: ${rightBg};
+        border-left: ${s.isRightSidebarVisible ? '1px solid #e0e0e0' : 'none'};
+    }
+    .cms-sidebar-section {
+        margin-bottom: 25px;
+    }
+    .cms-sidebar-heading {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        border-bottom: 2px solid rgba(0,0,0,0.1);
+        padding-bottom: 5px;
+        color: #333;
+    }
+    .cms-sidebar-links ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .cms-sidebar-links li {
+        margin-bottom: 8px;
+    }
+    
+    /* Responsive adjustments for mobile */
+    @media (max-width: 768px) {
+        .cms-layout {
+            grid-template-columns: 1fr;
+            display: flex; 
+            flex-direction: column;
+        }
+        .cms-left-sidebar[data-visible="true"], .cms-right-sidebar[data-visible="true"] {
+            width: 100% !important;
+            max-width: none;
+            order: 2; 
+            border-left: none;
+            border-right: none;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        /* If not visible, hide it entirely */
+        .cms-left-sidebar[data-visible="false"], .cms-right-sidebar[data-visible="false"] {
+             display: none;
+        }
+        .cms-main { order: 3; }
+    }
+                `;
+
+                // 2. Helper to render HTML for a given sidebar
+                const renderSidebarExportHtml = (sidebarData) => (sidebarData || []).map(section => `
+                    <div class="cms-sidebar-section">
+                        <h3 class="cms-sidebar-heading">${section.heading || 'Untitled Section'}</h3>
+                        <div class="cms-sidebar-links">
+                            <ul>
+                                ${(section.links || []).map(link => `<li><a href="${link.url || '#'}">${link.text || 'Untitled Link'}</a></li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `).join('');
+
+                // 3. Conditional inclusion of sidebar HTML in the layout
+                const leftSidebarHtml = s.isLeftSidebarVisible ? `<div class="cms-sidebar cms-left-sidebar" data-visible="true">${renderSidebarExportHtml(s.leftSidebar)}</div>` : '';
+                const rightSidebarHtml = s.isRightSidebarVisible ? `<div class="cms-sidebar cms-right-sidebar" data-visible="true">${renderSidebarExportHtml(s.rightSidebar)}</div>` : '';
+
+                // 4. Construct the final pure HTML document
+                const finalHtml = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CMS Export - Final Blog Post</title>
+        <style>${customCss}</style>
+    </head>
+    <body>
+        <div class="cms-header">${s.headerHtml || ''}</div>
+        <div class="cms-layout">
+            ${leftSidebarHtml}
+            <div class="cms-main">${s.mainContentHtml || ''}</div>
+            ${rightSidebarHtml}
+        </div>
+        <div class="cms-footer">${s.footerHtml || ''}</div>
+    </body>
+    </html>`;
+
+                return finalHtml;
+                
+            } catch (e) {
+                console.error("Error generating preview HTML:", e);
+                showNotification("Could not generate preview. Check the Main Content HTML for syntax errors.", true);
+                return '<html><body><h1>Error: Could not generate content.</h1><p>Check the console for details.</p></body></html>';
+            }
+        }
+        
+        /**
+         * Opens the current page state in a new browser tab.
+         */
+        function handleOpenPreviewInNewTab() {
+            try {
+                const finalHtml = generatePreviewHtml();
+                const blob = new Blob([finalHtml], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+                showNotification("Preview opened in new tab.", false);
+            } catch (e)
+             {
+                console.error("Error opening preview in new tab:", e);
+                showNotification("Could not open new tab.", true);
+            }
+        }
+
+        /**
+         * Generates and downloads the final, pure HTML page.
+         */
+        function handleDownloadPureHTML() {
+            try {
+                const finalHtml = generatePreviewHtml();
+                const blob = new Blob([finalHtml], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'pure_blog_output.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification("Pure HTML downloaded!", false);
+            } catch (e) {
+                console.error("Error downloading Pure HTML:", e);
+                showNotification("Could not download HTML.", true);
+            }
+        }
+
+        // --- FILE EXPORT/IMPORT FUNCTIONS ---
+
+        function handleDownloadJSON() {
+            try {
+                const json = JSON.stringify(state, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `cms_config_export_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification("JSON configuration downloaded.", false);
+            } catch (e) {
+                console.error("Error downloading JSON:", e);
+                showNotification("Could not download JSON.", true);
+            }
+        }
+
+        function handleRestoreJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                let parsedState = {};
+                try {
+                    parsedState = JSON.parse(e.target.result);
+                    if (parsedState && parsedState.headerHtml !== undefined && parsedState.colors !== undefined) {
+                        state = { 
+                            ...DEFAULT_STATE, 
+                            ...parsedState,
+                            colors: { ...DEFAULT_STATE.colors, ...parsedState.colors },
+                            leftSidebar: Array.isArray(parsedState.leftSidebar) ? parsedState.leftSidebar : DEFAULT_STATE.leftSidebar,
+                            rightSidebar: Array.isArray(parsedState.rightSidebar) ? parsedState.rightSidebar : DEFAULT_STATE.rightSidebar,
+                        };
+                        
+                        saveState(); 
+                        renderControls();
+                        showNotification("Configuration restored successfully!", false);
+                    } else {
+                        showNotification("Invalid JSON format.", true);
+                    }
+                } catch (error) {
+                    console.error("Error parsing JSON file:", error);
+                    showNotification("Error parsing JSON file.", true);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = null; 
+        }
+
+        // --- TAB SWITCHING ---
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetTab = tab.getAttribute('data-tab');
+
+                    tabs.forEach(t => t.classList.remove('active', 'text-white'));
+                    contents.forEach(c => c.classList.add('hidden'));
+
+                    tab.classList.add('active', 'text-white');
+                    const contentEl = document.querySelector(`[data-tab-content="${targetTab}"]`);
+                    if (contentEl) {
+                        contentEl.classList.remove('hidden');
+                    }
+                    
+                    renderIcons(); 
+                });
+            });
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', function() {
+            loadState();
+            setupTabs();
+            renderControls(); 
+            renderIcons(); 
+
+            // Make global for button visibility in HTML
+            window.handleDownloadJSON = handleDownloadJSON;
+            window.handleRestoreJSON = handleRestoreJSON;
+            window.handleDownloadPureHTML = handleDownloadPureHTML;
+            window.handleOpenPreviewInNewTab = handleOpenPreviewInNewTab;
+            window.updateState = updateState;
+            window.updateColor = updateColor;
+            window.addSidebarSection = addSidebarSection;
+            window.removeSidebarSection = removeSidebarSection;
+            window.updateSectionHeading = updateSectionHeading;
+            window.addLink = addLink;
+            window.removeLink = removeLink;
+            window.updateLink = updateLink;
+        });
+    </script>
+</body>
+</html>

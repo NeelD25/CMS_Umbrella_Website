@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Complete Advanced Post Editor (Fixed Tables/Resizing)</title>
+<style>
+/* ------------------------------------------------------------- */
+/* 1. ROOT VARIABLES & GENERAL STYLES */
+/* ------------------------------------------------------------- */
+:root{
+    --primary-accent: #007bff; /* Default Primary Accent Color (Blue) */
+    --secondary-accent: #2c3e50; /* Default Secondary Accent Color (Dark Grey) */
+    --light:#f8f9fa; /* Light Gray Background */
+    --panel:#fff; /* Editor Panel Background */
+    --muted:#6c757d;
+    --danger:#dc3545; /* Red for Delete/Apply CTA */
+    --success:#28a745;
+    --info:#17a2b8;
+}
+/* NEW: Full Screen Utilization */
+body{
+    font-family:Arial, sans-serif; 
+    background:var(--light);
+    margin:0; /* Remove default margin */
+    padding:0;
+    color:#222;
+    line-height:1.7; 
+}
+.page{
+    max-width:1400px; /* Increased max-width */
+    width: 95%; /* Use full width if available */
+    margin:20px auto;
+    background:var(--panel);
+    padding:28px;
+    border-radius:10px;
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+    box-sizing: border-box;
+}
+
+/* ------------------------------------------------------------- */
+/* 2. EDITOR FORM ELEMENT STYLES */
+/* ------------------------------------------------------------- */
+input[type="text"],input[type="url"],input[type="number"]{width:100%;padding:10px;border:1px solid #d7d7d7;border-radius:6px;box-sizing:border-box;font-size:14px}
+.toolbar input[type="color"], 
+#actionButtonsContainer input[type="color"], 
+.text-link-container input[type="color"],
+.color-group input[type="color"] {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+textarea{min-height:80px;resize:vertical;width:100%;padding:10px;border:1px solid #d7d7d7;border-radius:6px;box-sizing:border-box;font-size:14px;font-family:inherit}
+.rich-editor{min-height:150px;border:1px solid #d7d7d7;border-radius:6px;padding:12px;background:#fff;max-height:500px;overflow-y:auto;line-height:1.8}
+.rich-editor:focus{outline:2px solid var(--primary-accent);outline-offset:2px}
+.rich-editor:empty:before{content:attr(data-placeholder);color:#999}
+
+/* Rich Text H1, H2, H3 styles (matches preview structure) */
+.rich-editor ul,.rich-editor ol{margin:10px 0;padding-left:30px;list-style-position:outside}
+.rich-editor ul{list-style-type:disc}
+.rich-editor ol{list-style-type:decimal}
+.rich-editor li{margin:6px 0;padding-left:5px}
+.rich-editor p{margin:10px 0; font-size: 16px;}
+.rich-editor h1{font-size:32px;margin:20px 0 14px 0;font-weight:700;color:#1a1a1a}
+.rich-editor h2{font-size:26px;margin:18px 0 10px 0;font-weight:600;color: var(--primary-accent);}
+.rich-editor h3{font-size:22px;margin:16px 0 8px 0;font-weight:600;color: var(--secondary-accent);}
+.rich-editor h4{font-size:18px;margin:14px 0 6px 0;font-weight:600;color: #333;}
+.rich-editor strong,.rich-editor b{font-weight:700}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;padding:10px;background:#f8f9fa;border-radius:6px;border:1px solid #e0e0e0; align-items: center;}
+.toolbar button{padding:7px 12px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;font-size:13px;transition:all 0.2s}
+.toolbar button:hover{background:#e9ecef;border-color:#aaa}
+.toolbar button.active{background:var(--primary-accent);color:#fff;border-color:var(--primary-accent)}
+.toolbar-separator{width:1px;background:#ddd;margin:0 4px}
+
+/* --- FIX #4 & NEW FEATURE: STYLING FOR PASTED TABLES --- */
+/* Base table styles for rich-editor (pasted tables) */
+.rich-editor table{
+    width:auto; /* Start with auto width */
+    border-collapse:collapse;
+    margin-top:10px;
+    border:1px solid #e0e0e0;
+    max-width: 100%; /* Ensure it doesn't overflow the editor */
+}
+.rich-editor th, .rich-editor td{
+    border:1px solid #e0e0e0;
+    padding:8px 10px;
+    text-align:left;
+    vertical-align:middle;
+}
+.rich-editor th{
+    background:#e3f2fd;
+    font-weight:600;
+    color:#0d47a1;
+}
+
+/* Alignment logic for pasted tables (using old school HTML alignment attributes) */
+/* We use margin auto/0 to handle the alignment based on the 'align' attribute */
+.rich-editor table[align="center"] {
+    margin-left: auto;
+    margin-right: auto;
+}
+.rich-editor table[align="right"] {
+    margin-left: auto;
+    margin-right: 0;
+}
+.rich-editor table[align="left"] {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+/* Toolbar Controls for Table Sizing/Position */
+.table-size-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 0 5px;
+}
+.table-size-controls label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+}
+.table-size-controls button {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+.table-size-controls input[type="number"] {
+    width: 60px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+/* ------------------------------------------- */
+
+h3.section-title{
+    color:var(--primary-accent);
+    margin:0; 
+    display:block;
+    font-size:19px;
+    font-weight:600;
+    padding-right: 140px;
+    border-bottom: none; 
+}
+
+.section{border:1px solid #e6e6e6;padding:18px;border-radius:8px;margin-bottom:18px;position:relative;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.03)}
+.section-controls{position:absolute;right:12px;top:12px;display:flex;gap:4px;z-index:3}
+.btn{cursor:pointer;border:0;padding:7px 10px;border-radius:6px;font-size:13px;color:#fff;transition:all 0.2s}
+.btn.updown{background:#8a8f96;padding: 7px 8px; font-size: 11px;}
+.btn.edit{background:#007bff; padding: 7px 8px; font-size: 11px;}
+.btn.delete{background:var(--danger); padding: 7px 8px; font-size: 11px;}
+.btn.add{background:var(--success)}
+.btn.remove{background:#ff6b6b}
+/* This CSS applies to the dedicated Custom Table section's editor, not pasted tables */
+table{width:100%;border-collapse:collapse;margin-top:10px} 
+th,td{border:1px solid #e0e0e0;padding:10px;text-align:left;vertical-align:middle}
+th{background:#e3f2fd;font-weight:600;color:#0d47a1}
+.add-section-bar{margin-bottom:20px;padding:16px;background:linear-gradient(135deg,var(--primary-accent) 0%,#0056b3 100%); 
+    border-radius:8px;display:flex;gap:10px;flex-wrap:wrap;box-shadow:0 4px 6px rgba(0,0,0,.1);position:relative}
+.add-section-bar .btn{background:rgba(255,255,255,0.95);color:var(--primary-accent);font-weight:600}
+.table-config{display:flex;gap:12px;margin-bottom:12px;align-items:center;padding:10px;background:#f8f9fa;border-radius:6px}
+.table-config label{font-size:13px;font-weight:600}
+.table-config input{width:80px;padding:6px}
+
+/* Button & Link Rows FIX - Restore Horizontal Layout */
+#actionButtonsContainer > div, 
+[id^="noHeadingButtonsContainer"] > div,
+.text-link-container > div {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 8px;
+    border-radius: 6px;
+}
+.btn-controls {
+    display: flex;
+    gap: 4px;
+}
+.btn-controls .btn {
+    padding: 3px 6px;
+    font-size: 11px;
+    line-height: 1;
+}
+
+/* ------------------------------------------------------------- */
+/* 3. PREVIEW AREA STYLES */
+/* ------------------------------------------------------------- */
+.preview-area{max-width: none; margin: 0; padding: 0; background-color: var(--light); box-shadow: none;}
+.preview-area .post-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.preview-area .post-header-box {
+    text-align: center;
+    margin-top: 30px; 
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: var(--primary-accent); 
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.preview-area h2 {
+    color: var(--primary-accent); 
+    border-bottom: 3px solid var(--primary-accent);
+    padding-bottom: 10px;
+    margin-top: 40px;
+    margin-bottom: 16px;
+    font-size: 26px;
+    font-weight: 600;
+}
+.preview-area table{width:100%;border-collapse:collapse;margin:15px 0}
+.preview-area th, .preview-area td{border:1px solid #ddd;padding:12px;text-align:left;vertical-align:middle}
+.preview-area th{
+    background:#e9f5ff; 
+    font-weight:700;
+    color:var(--primary-accent);
+    border-top: 3px solid var(--primary-accent); 
+}
+
+/* Footer Style for Preview */
+.preview-area footer {
+    width: 100%;
+    text-align: center;
+    padding: 15px 10px;
+    background-color: #2c3e50;
+    color: #ffffff;
+    font-size: 14px;
+    max-width: 1200px; 
+    margin: 0 auto; 
+    border-top-left-radius: 8px; 
+    border-top-right-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* Clone Dropdown (Restored) */
+#cloneDropdown {
+    position: absolute;
+    top: 35px;
+    right: 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 10;
+    padding: 5px 0;
+}
+#cloneDropdown button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: #333;
+    transition: background-color 0.2s;
+}
+#cloneDropdown button:hover {
+    background-color: #f0f0f0;
+}
+</style>
+</head>
+<body>
+
+<header id="mainHeader" style="background-color:#007bff; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; box-shadow: 0 0 8px rgba(0,0,0,0.1); max-width: 1400px; margin: 0 auto;">
+  <a href="https://rozgardesk.in/" style="color:white; text-decoration:none; font-size:22px; font-weight:700;">
+    RozgarDesk.in EDITOR
+  </a>
+  <nav style="display:flex; gap:15px;">
+    <a href="https://rozgardesk.in/" style="color:white; text-decoration:none; font-size:16px;">Home</a>
+  </nav>
+</header>
+<div class="page">
+<h1 class="title">📝 Complete Advanced Post Editor</h1>
+
+<div id="customizationPanel" style="display: flex; gap: 20px; margin-bottom: 20px; align-items: center; border: 1px solid #e6e6e6; padding: 15px; border-radius: 8px; background: #fff;">
+    <label style="font-weight: 700;">Theme Colors:</label>
+    <div class="color-group" style="display:flex; gap:8px; align-items:center;">
+        <label for="primaryColorPicker" style="font-size:14px;">Primary (H2/Borders):</label>
+        <input type="color" id="primaryColorPicker" value="#007bff" onchange="updateCustomColors()">
+    </div>
+    <div class="color-group" style="display:flex; gap:8px; align-items:center;">
+        <label for="secondaryColorPicker" style="font-size:14px;">Secondary (H3):</label>
+        <input type="color" id="secondaryColorPicker" value="#2c3e50" onchange="updateCustomColors()">
+    </div>
+</div>
+<div style="margin-bottom:16px">
+<input id="postTitle" type="text" placeholder="Enter Post Title (Job/Blog/Article)"/>
+</div>
+
+<div class="add-section-bar" id="addSectionBar">
+<button class="btn" onclick="addRichTextSection()">📄 Rich Text</button>
+<button class="btn" onclick="addCustomTable()">📊 Custom Table</button>
+<button class="btn" onclick="addImageSection()">🖼️ Image</button>
+<button class="btn" onclick="addSimpleTextSection()">📝 Simple Text</button>
+<button class="btn" onclick="addActionButtonSection()">🎯 Action Buttons (With Heading)</button>
+<button class="btn" onclick="addNoHeadingButtonsSection()">🎯 Action Buttons (No Heading)</button>
+<button class="btn" onclick="addTextLinkSection()">🔗 Text Links</button>
+</div>
+
+<div id="sectionsContainer">
+
+<div class="section" id="sec_details" data-default-title="Notification Details" data-type="richtext">
+    <div class="section-controls">
+        <button class="btn updown" onclick="moveSection(this,'up')">↑</button>
+        <button class="btn updown" onclick="moveSection(this,'down')">↓</button>
+        <button class="btn edit" onclick="editTitle(this)">✏️</button>
+        <button class="btn" onclick="cloneSectionDialog(this)">➕</button>
+        <button class="btn delete" onclick="deleteSection(this)">🗑️</button>
+    </div>
+<h3 class="section-title">Notification Details</h3>
+<div class="toolbar">
+<select onchange="formatDoc('formatBlock', this.value, this)" title="Heading/Text Size">
+    <option value="<p>">Normal Text</option>
+    <option value="<h1>">Heading 1 (Largest)</option>
+    <option value="<h2>">Heading 2</option>
+    <option value="<h3>">Heading 3</option>
+    <option value="####">Heading 4</option>
+</select>
+<button onmousedown="event.preventDefault(); formatDoc('bold', null, this)"><b>B</b></button>
+<button onmousedown="event.preventDefault(); formatDoc('italic', null, this)"><i>I</i></I></button>
+<button onmousedown="event.preventDefault(); formatDoc('underline', null, this)"><u>U</u></button>
+<span class="toolbar-separator"></span>
+<button onmousedown="event.preventDefault(); formatDoc('insertUnorderedList', null, this)">• List</button>
+<button onmousedown="event.preventDefault(); formatDoc('insertOrderedList', null, this)">1. List</button>
+<span class="toolbar-separator"></span>
+<button onmousedown="event.preventDefault(); formatDoc('justifyLeft', null, this)">Left</button>
+<button onmousedown="event.preventDefault(); formatDoc('justifyCenter', null, this)">Center</button>
+<button onmousedown="event.preventDefault(); formatDoc('justifyRight', null, this)">Right</button>
+<span class="toolbar-separator"></span>
+<label for="color_picker_TEXT_default" style="font-size:13px;">Text:</label>
+<input type="color" id="color_picker_TEXT_default" onchange="formatDoc('foreColor', this.value, this)" title="Text Color" value="#333333">
+
+<label for="color_picker_HIGHLIGHT_default" style="font-size:13px;">Highlight:</label>
+<input type="color" id="color_picker_HIGHLIGHT_default" onchange="formatDoc('backColor', this.value, this)" title="Text Highlight" value="#ffff00">
+<span class="toolbar-separator"></span>
+
+<div class="table-size-controls">
+    <label title="Set table width in percentage (applies to selected table)">Table Width (%):</label>
+    <input type="number" id="tableWidthInput_default" min="20" max="100" value="100" title="Set table width" 
+           onchange="setTableWidth(this.value, this)">
+</div>
+<button onmousedown="event.preventDefault(); formatDoc('removeFormat', null, this)">Clear</button>
+</div>
+<div class="rich-editor sec-content" contenteditable="true" data-placeholder="Enter main notification details or introduction..."></div>
+</div>
+
+<div class="section" id="sec_dates" data-default-title="Important Dates" data-type="table">
+    <div class="section-controls">
+        <button class="btn updown" onclick="moveSection(this,'up')">↑</button>
+        <button class="btn updown" onclick="moveSection(this,'down')">↓</button>
+        <button class="btn edit" onclick="editTitle(this)">✏️</button>
+        <button class="btn" onclick="cloneSectionDialog(this)">➕</button>
+        <button class="btn delete" onclick="deleteSection(this)">🗑️</button>
+    </div>
+<h3 class="section-title">Important Dates</h3>
+<div class="table-config">
+    <label for="colCount_default_table">Columns:</label>
+    <input type="number" id="colCount_default_table" value="2" min="1" max="10" onchange="createTableFromConfig(this)">
+</div>
+<table><thead><tr><th><input type="text" value="Event"></th><th><input type="text" value="Date"></th><th style="width:90px">Action</th></tr></thead>
+<tbody>
+<tr>
+<td><input type="text" placeholder="Event"></td>
+<td><input type="text" placeholder="Date"></td>
+<td><button class="btn add" onclick="addRow(this)">+</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="section" id="sec_buttons" data-default-title="Action Buttons" data-type="buttons">
+    <div class="section-controls">
+        <button class="btn updown" onclick="moveSection(this,'up')">↑</button>
+        <button class="btn updown" onclick="moveSection(this,'down')">↓</button>
+        <button class="btn edit" onclick="editTitle(this)">✏️</button>
+        <button class="btn" onclick="cloneSectionDialog(this)">➕</button>
+        <button class="btn delete" onclick="deleteSection(this)">🗑️</button>
+    </div>
+<h3 class="section-title">Action Buttons</h3>
+<div id="actionButtonsContainer_sec_buttons" class="action-buttons-container"></div>
+<div style="margin-top:8px">
+<button class="btn add" onclick="addActionButton('Apply Now', '#', 'actionButtonsContainer_sec_buttons')">+ Add Button</button>
+</div>
+<div class="small">Buttons with custom labels, links, and colors (Renders with H2 heading).</div>
+</div>
+</div>
+
+<div class="restore-area">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<strong>♻️ Restore Deleted</strong>
+<span class="small">Deleted sections here</span>
+</div>
+<div class="restore-list" id="restoreList"></div>
+</div>
+
+<div class="footer-actions" style="margin-top:20px; display:flex; gap:10px; flex-wrap: wrap;"> <button class="btn edit" style="background:#0b5ed7" onclick="previewPost()">👁️ Preview</button>
+    <button class="btn" style="background:#28a745" onclick="downloadHTML()">⬇️ Download HTML</button>
+    
+    <button class="btn" style="background:#20c997" onclick="downloadEdits()">💾 Download Edits</button>
+    <button class="btn" style="background:var(--info)" onclick="triggerRestore()">⬆️ Restore Edits</button>
+    <input type="file" id="restoreFileInput" accept=".json" style="display:none;" onchange="handleRestoreFile(event)">
+    <button class="btn gray" style="background:#6c757d" onclick="location.reload()">🔄 Reset</button>
+</div>
+<div id="preview" class="preview-area hidden" style="margin-top:20px;"></div>
+</div>
+
+<script>
+// --- GLOBAL TEMPLATES & CONSTANTS ---
+const universalControlsHTML = (hasClone = true) => {
+    let html = `
+    <div class="section-controls">
+        <button class="btn updown" onclick="moveSection(this,'up')">↑</button>
+        <button class="btn updown" onclick="moveSection(this,'down')">↓</button>
+        <button class="btn edit" onclick="editTitle(this)">✏️</button>`;
+    if (hasClone) {
+        html += `<button class="btn" onclick="cloneSectionDialog(this)">➕</button>`;
+    }
+    html += `<button class="btn delete" onclick="deleteSection(this)">🗑️</button>
+    </div>`;
+    return html;
+};
+
+// Rich Text Toolbar HTML
+const richTextToolbarHTML = (sectionId) => `
+    <div class="toolbar">
+        <select onchange="formatDoc('formatBlock', this.value, this)" title="Heading/Text Size">
+            <option value="<p>">Normal Text</option>
+            <option value="<h1>">Heading 1 (Largest)</option>
+            <option value="<h2>">Heading 2</option>
+            <option value="<h3>">Heading 3</option>
+            <option value="<h4>">Heading 4</option>
+        </select>
+        <button onmousedown="event.preventDefault(); formatDoc('bold', null, this)"><b>B</b></button>
+        <button onmousedown="event.preventDefault(); formatDoc('italic', null, this)"><i>I</i></I></button>
+        <button onmousedown="event.preventDefault(); formatDoc('underline', null, this)"><u>U</u></button>
+        <span class="toolbar-separator"></span>
+        <button onmousedown="event.preventDefault(); formatDoc('insertUnorderedList', null, this)">• List</button>
+        <button onmousedown="event.preventDefault(); formatDoc('insertOrderedList', null, this)">1. List</button>
+        <span class="toolbar-separator"></span>
+        <button onmousedown="event.preventDefault(); formatDoc('justifyLeft', null, this)">Left</button>
+        <button onmousedown="event.preventDefault(); formatDoc('justifyCenter', null, this)">Center</button>
+        <button onmousedown="event.preventDefault(); formatDoc('justifyRight', null, this)">Right</button>
+        <span class="toolbar-separator"></span>
+        <label for="color_picker_TEXT_${sectionId}" style="font-size:13px;">Text:</label>
+        <input type="color" id="color_picker_TEXT_${sectionId}" onchange="formatDoc('foreColor', this.value, this)" title="Text Color" value="#333333">
+        
+        <label for="color_picker_HIGHLIGHT_${sectionId}" style="font-size:13px;">Highlight:</label>
+        <input type="color" id="color_picker_HIGHLIGHT_${sectionId}" onchange="formatDoc('backColor', this.value, this)" title="Text Highlight" value="#ffff00">
+        
+        <span class="toolbar-separator"></span>
+        
+        <div class="table-size-controls">
+            <label title="Set table width in percentage (applies to selected table)">Width (%):</label>
+            <input type="number" id="tableWidthInput_${sectionId}" min="20" max="100" value="100" title="Set table width" 
+                   onchange="setTableWidth(this.value, this)">
+        </div>
+        <button onmousedown="event.preventDefault(); formatDoc('removeFormat', null, this)">Clear</button>
+    </div>
+`;
+
+// Universal Top Header HTML
+const UNIVERSAL_TOP_HEADER = (primaryColor) => {
+    return `
+<header class="preview-header-blue" style="
+    background-color:${primaryColor}; 
+    max-width: 1200px;
+    margin: 0 auto;
+    padding:12px 20px; 
+    display:flex; 
+    align-items:center; 
+    justify-content:space-between; 
+    flex-wrap:wrap; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    ">
+    <a href="https://rozgardesk.in/" style="color:white; text-decoration:none; font-size:22px; font-weight:700;">
+        RozgarDesk.in
+    </a>
+    <nav style="display:flex; gap:15px;">
+        <a href="https://rozgardesk.in/" style="color:white; text-decoration:none; font-size:16px;">Home</a>
+    </nav>
+</header>`;
+};
+
+
+// Universal Footer HTML
+const UNIVERSAL_FOOTER = `
+<footer style="
+    all: initial;
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 15px 10px;
+    background-color: #2c3e50;
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    box-sizing: border-box;
+    max-width: 1200px; 
+    margin: 0 auto; 
+    border-top-left-radius: 8px; 
+    border-top-right-radius: 8px;
+">
+    <p style="all: unset; display: inline; color: #ffffff;">
+        &copy; ${new Date().getFullYear()} <strong>Rozgardesk</strong>. All rights reserved. 
+        <a href='../privacypolicy.html' 
+            style='all: unset; color:#ffffff; cursor:pointer; text-decoration:none; font-weight:500;'
+            onmouseover='this.style.textDecoration="underline";'
+            onmouseout='this.style.textDecoration="none";'>
+            Privacy Policy
+        </a> |
+        <a href='../aboutus.html'
+            style='all: unset; color:#ffffff; cursor:pointer; text-decoration:none; font-weight:500;'
+            onmouseover='this.style.textDecoration="underline";'
+            onmouseout='this.style.textDecoration="none";'>
+            About Us
+            </a> |
+
+    <a href='../terms_and_conditions.html' style='all: unset; color:#ffffff; cursor:pointer; text-decoration:none; font-weight:500;' onmouseover='this.style.textDecoration="underline";' onmouseout='this.style.textDecoration="none";'>
+      Terms and Conditions
+
+        </a> |
+
+    <a href='https://forms.gle/KzEzY3eSsJYxnxgXA' style='all: unset; color:#ffffff; cursor:pointer; text-decoration:none; font-weight:500;' onmouseover='this.style.textDecoration="underline";' onmouseout='this.style.textDecoration="none";'>
+    Contact Us
+        </a>
+    </p>
+</footer>
+`;
+
+// --- CUSTOM COLOR CONTROL ---
+function updateCustomColors() {
+    const primaryColor = document.getElementById('primaryColorPicker').value;
+    const secondaryColor = document.getElementById('secondaryColorPicker').value;
+    
+    document.documentElement.style.setProperty('--primary-accent', primaryColor);
+    document.documentElement.style.setProperty('--secondary-accent', secondaryColor);
+
+    document.getElementById('mainHeader').style.backgroundColor = primaryColor;
+    document.querySelector('.add-section-bar').style.background = `linear-gradient(135deg, ${primaryColor} 0%, #0056b3 100%)`;
+    
+    document.querySelectorAll('.section-title').forEach(h3 => {
+        h3.style.color = primaryColor;
+    });
+}
+
+// --- CORE FUNCTIONALITY ---
+function formatDoc(command, value, element) {
+    const editor = element.closest('.section').querySelector('.rich-editor');
+    editor.focus();
+
+    try {
+        const commandValue = (command === 'formatBlock' && value === '<p>') ? 'p' : value;
+        
+        // Custom logic to handle table alignment since execCommand is unreliable on TABLE elements
+        if (command.startsWith('justify')) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                let node = selection.getRangeAt(0).startContainer;
+                // Traverse up to find a table element
+                let table = null;
+                while (node) {
+                    if (node.tagName === 'TABLE') {
+                        table = node;
+                        break;
+                    }
+                    node = node.parentElement;
+                }
+                
+                if (table) {
+                    event.preventDefault(); // Stop default execCommand behavior
+                    if (command === 'justifyCenter') {
+                        table.setAttribute('align', 'center');
+                    } else if (command === 'justifyRight') {
+                        table.setAttribute('align', 'right');
+                    } else { // justifyLeft
+                        table.setAttribute('align', 'left');
+                    }
+                    return; // Stop further execution
+                }
+            }
+        }
+        
+        // Default execCommand handling
+        if (command === 'formatBlock') {
+            document.execCommand('formatBlock', false, commandValue.replace(/[<>]/g, '')); 
+        } else {
+            document.execCommand(command, false, commandValue);
+        }
+
+    } catch (e) {
+        console.error("Error executing execCommand:", e);
+    }
+    updateToolbarState(editor);
+}
+
+// NEW FUNCTION: Set Table Width
+function setTableWidth(widthValue, inputElement) {
+    const editor = inputElement.closest('.section').querySelector('.rich-editor');
+    const numericWidth = parseInt(widthValue);
+    
+    if (isNaN(numericWidth) || numericWidth < 20 || numericWidth > 100) {
+        console.warn("Invalid width value for table.");
+        return;
+    }
+
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        let node = selection.getRangeAt(0).startContainer;
+        let table = null;
+        while (node) {
+            if (node.tagName === 'TABLE') {
+                table = node;
+                break;
+            }
+            node = node.parentElement;
+        }
+
+        if (table) {
+            table.style.width = numericWidth + '%';
+            table.style.maxWidth = '100%'; 
+            // Also update the align attribute to ensure correct centering/right align with new width
+            if (!table.hasAttribute('align') || table.getAttribute('align') === '') {
+                 table.setAttribute('align', 'left'); 
+            }
+        } else {
+            console.log("No table selected.");
+        }
+    }
+}
+
+
+function updateToolbarState(editor){
+    const toolbar = editor.previousElementSibling;
+    if(!toolbar || !toolbar.classList.contains('toolbar')) return;
+    
+    // Update button states
+    toolbar.querySelectorAll('button').forEach(button => {
+        button.classList.remove('active');
+        const commandText = button.getAttribute('onmousedown');
+        if (commandText) {
+            if (commandText.includes("('bold'") && document.queryCommandState('bold')) {
+                button.classList.add('active');
+            } else if (commandText.includes("('italic'") && document.queryCommandState('italic')) {
+                button.classList.add('active');
+            } else if (commandText.includes("('underline'") && document.queryCommandState('underline')) {
+                button.classList.add('active');
+            } else if (commandText.includes("('justifyLeft'") && document.queryCommandState('justifyLeft')) {
+                button.classList.add('active');
+            } else if (commandText.includes("('justifyCenter'") && document.queryCommandState('justifyCenter')) {
+                button.classList.add('active');
+            } else if (commandText.includes("('justifyRight'") && document.queryCommandState('justifyRight')) {
+                button.classList.add('active');
+            }
+        }
+    });
+    
+    // Update Table Width Input (New feature)
+    const tableWidthInput = toolbar.querySelector('[id^="tableWidthInput_"]');
+    if (tableWidthInput) {
+        const selection = window.getSelection();
+        let currentTable = null;
+        if (selection.rangeCount > 0) {
+            let node = selection.getRangeAt(0).startContainer;
+            while (node) {
+                if (node.tagName === 'TABLE') {
+                    currentTable = node;
+                    break;
+                }
+                node = node.parentElement;
+            }
+        }
+
+        if (currentTable && currentTable.style.width) {
+            const widthValue = parseInt(currentTable.style.width.replace('%', ''));
+            tableWidthInput.value = widthValue || 100;
+        } else {
+            tableWidthInput.value = 100; // Reset to default if no table is selected
+        }
+    }
+}
+
+function moveSection(b,d){
+    const s=b.closest('.section'),c=document.getElementById('sectionsContainer');
+    if(d==='up'&&s.previousElementSibling)c.insertBefore(s,s.previousElementSibling);
+    else if(d==='down'&&s.nextElementSibling)c.insertBefore(s.nextElementSibling,s)
+}
+
+function editTitle(b){
+    const s=b.closest('.section'),h=s.querySelector('.section-title');
+    const currentTitle = h.innerText;
+    const i=document.createElement('input');
+    i.type='text';
+    i.value=currentTitle;
+    i.style.width='70%';
+    i.style.fontSize='18px';
+    i.style.padding='5px';
+    i.style.margin='0';
+    h.innerText=''; 
+    h.appendChild(i); 
+    const saveTitle = () => {
+        const newTitle = i.value.trim() || s.dataset.defaultTitle || 'Section';
+        h.innerText = newTitle;
+        s.setAttribute('data-default-title', newTitle);
+        h.style.color = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent');
+        i.removeEventListener('blur', saveTitle);
+        i.removeEventListener('keypress', handleKeyPress);
+    };
+    const handleKeyPress = (e) => {
+        if(e.key==='Enter') i.blur(); 
+    };
+    i.addEventListener('blur', saveTitle);
+    i.addEventListener('keypress', handleKeyPress);
+    i.focus();
+    i.select();
+}
+
+let deletedStore=[];
+function deleteSection(b){
+    const s=b.closest('.section'),id=s.id||('sec_'+Date.now());s.id=id;
+    const cl=s.cloneNode(true); 
+    
+    // Manually capture dynamic content
+    s.querySelectorAll('.rich-editor').forEach((sr,i)=>{
+        if(cl.querySelectorAll('.rich-editor')[i]) cl.querySelectorAll('.rich-editor')[i].innerHTML = sr.innerHTML;
+    });
+    s.querySelectorAll('input,textarea').forEach((sr,i)=>{
+        if(cl.querySelectorAll('input,textarea')[i] && sr.type !== 'button') { 
+            cl.querySelectorAll('input,textarea')[i].value = sr.value;
+        }
+    });
+
+    // Use a more specific selector for button/link containers
+    s.querySelectorAll('.action-buttons-container, .text-link-container').forEach((sr, i) => {
+        const targetContainer = cl.querySelector(`#${sr.id}`) || cl.querySelector(`.${sr.className.split(' ').join('.')}`);
+        if (targetContainer) {
+            targetContainer.innerHTML = sr.innerHTML;
+        }
+    });
+
+    const ti=s.querySelector('.section-title')?.innerText||s.dataset.defaultTitle||'Section';
+    deletedStore.push({id,html:cl.outerHTML,title:ti});
+    s.remove();
+    refreshRestoreUI();
+}
+function refreshRestoreUI(){
+    const l=document.getElementById('restoreList');l.innerHTML='';
+    deletedStore.forEach(i=>{
+        const d=document.createElement('div');d.classList.add('restore-item');
+        d.innerHTML=`<span>${i.title}</span><button class="btn success" onclick="restoreSection('${i.id}')">Restore</button>`;
+        l.appendChild(d);
+    });
+}
+function restoreSection(id){
+    const i=deletedStore.findIndex(item=>item.id===id);
+    if(i>-1){
+        const item=deletedStore.splice(i,1)[0];
+        document.getElementById('sectionsContainer').insertAdjacentHTML('beforeend',item.html);
+        const restoredSection = document.getElementById(id);
+        
+        // Re-attach all necessary event listeners and fix colors/properties
+        restoredSection.querySelectorAll('.rich-editor').forEach(e => {
+            e.addEventListener('keyup', () => updateToolbarState(e));
+            e.addEventListener('mouseup', () => updateToolbarState(e));
+            e.addEventListener('input', () => updateToolbarState(e));
+        });
+        
+        restoredSection.querySelectorAll('.sec-url').forEach(e => {
+            e.addEventListener('input', updateImagePreview);
+            if (e.value) updateImagePreview({ target: e });
+        });
+        
+        // Re-attach the onchange handler to the table width input
+        restoredSection.querySelectorAll('[id^="tableWidthInput_"]').forEach(input => {
+            input.onchange = function() { setTableWidth(this.value, this); };
+        });
+        
+        // Re-attach onchange handler to custom table column count input
+        restoredSection.querySelectorAll('[id^="colCount_"]').forEach(input => {
+            input.onchange = function() { createTableFromConfig(this); };
+        });
+        
+        // Re-attach click handlers for add/remove row buttons in custom tables
+        restoredSection.querySelectorAll('table button.add').forEach(button => {
+            button.onclick = function() { addRow(this); };
+        });
+        restoredSection.querySelectorAll('table button.remove').forEach(button => {
+            button.onclick = function() { deleteRow(this); };
+        });
+
+        // Re-attach click handlers for button section controls
+        restoredSection.querySelectorAll('.button-row button.remove').forEach(button => {
+            button.onclick = function() { removeButtonRow(this); };
+        });
+        restoredSection.querySelectorAll('.text-link-container button.remove').forEach(button => {
+            button.onclick = function() { removeLinkRow(this); };
+        });
+
+        // Re-attach click handlers for button section add buttons
+        restoredSection.querySelectorAll('.section > div:last-child > .btn.add').forEach(button => {
+            const containerId = button.getAttribute('onclick').match(/'([^']*)'/g).pop().replace(/'/g, '');
+            button.onclick = function() { addActionButton(button.innerText.replace('+ Add ', '').trim(), '#', containerId); };
+        });
+        
+        const titleElement = restoredSection.querySelector('.section-title');
+        if(titleElement) {
+            titleElement.style.color = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent');
+        }
+        refreshRestoreUI();
+    }
+}
+// --- CLONE/DUPLICATE FUNCTIONALITY ---
+function cloneSectionDialog(button) {
+    const section = button.closest('.section');
+    const existingDropdown = section.querySelector('#cloneDropdown');
+    if (existingDropdown) {
+        existingDropdown.remove();
+        return;
+    }
+    const dropdown = document.createElement('div');
+    dropdown.id = 'cloneDropdown';
+    dropdown.innerHTML = `
+        <button onclick="cloneSection('${section.id}', 'above')">Clone Above</button>
+        <button onclick="cloneSection('${section.id}', 'below')">Clone Below</button>
+    `;
+    button.insertAdjacentElement('afterend', dropdown);
+}
+function cloneSection(originalId, position) {
+    const originalSection = document.getElementById(originalId);
+    if (!originalSection) return;
+
+    const dropdown = originalSection.querySelector('#cloneDropdown');
+    if (dropdown) dropdown.remove();
+
+    const clonedSection = originalSection.cloneNode(true);
+    const newId = originalId.split('_')[0] + '_' + Date.now();
+    clonedSection.id = newId;
+
+    const titleH3 = clonedSection.querySelector('.section-title');
+    const defaultTitle = originalSection.dataset.defaultTitle + ' (Copy)';
+    titleH3.innerText = defaultTitle;
+    clonedSection.setAttribute('data-default-title', defaultTitle);
+
+    // Update all IDs within the section
+    clonedSection.querySelectorAll('[id]').forEach(el => {
+        // This is a robust way to update all dynamic IDs based on the old section ID
+        el.id = el.id.replace(originalId, newId);
+    });
+
+    const originalEditor = originalSection.querySelector('.rich-editor');
+    const clonedEditor = clonedSection.querySelector('.rich-editor');
+    if (clonedEditor && originalEditor) {
+        clonedEditor.innerHTML = originalEditor.innerHTML; 
+        clonedEditor.addEventListener('keyup', () => updateToolbarState(clonedEditor));
+        clonedEditor.addEventListener('mouseup', () => updateToolbarState(clonedEditor));
+        clonedEditor.addEventListener('input', () => updateToolbarState(clonedEditor));
+    }
+
+    // Update all input values and re-attach listeners
+    clonedSection.querySelectorAll('input, textarea').forEach((clonedInput, index) => {
+        const originalInput = originalSection.querySelectorAll('input, textarea')[index];
+        if (originalInput) {
+            clonedInput.value = originalInput.value;
+            if (clonedInput.getAttribute('onchange')?.includes('createTableFromConfig')) {
+                clonedInput.onchange = () => createTableFromConfig(clonedInput);
+            }
+            if (clonedInput.classList.contains('sec-url')) {
+                clonedInput.addEventListener('input', updateImagePreview);
+            }
+        }
+    });
+
+    // Handle button container ID updates in the HTML and onclick attributes
+    if (originalSection.dataset.type === 'buttons' || originalSection.dataset.type === 'noheading-buttons') {
+        const oldContainerId = originalSection.querySelector('.action-buttons-container')?.id;
+        if (oldContainerId) {
+            const newContainerId = oldContainerId.replace(originalId, newId);
+            const container = clonedSection.querySelector('.action-buttons-container');
+            container.id = newContainerId;
+
+            // Update the Add Button's onclick attribute
+            const addButton = clonedSection.querySelector('.btn.add');
+            if(addButton) {
+                const oldOnClick = addButton.getAttribute('onclick');
+                addButton.setAttribute('onclick', oldOnClick.replace(oldContainerId, newContainerId));
+            }
+
+            // Re-attach remove listeners for cloned button rows
+            clonedSection.querySelectorAll('.button-row button.remove').forEach(button => {
+                 button.onclick = function() { removeButtonRow(this); };
+            });
+        }
+    }
+
+
+    if (clonedSection.dataset.type === 'table') {
+        // Re-attach add/remove row listeners for custom tables
+        clonedSection.querySelectorAll('tbody tr').forEach((row, index, list) => {
+            const actionCell = row.querySelector('td:last-child');
+            if (actionCell) {
+                if (index === list.length - 1) {
+                    actionCell.innerHTML = '<button class="btn add" onclick="addRow(this)">+</button>';
+                } else {
+                    actionCell.innerHTML = '<button class="btn remove" onclick="deleteRow(this)">-</button>';
+                }
+            }
+        });
+    }
+
+    if (position === 'above') {
+        originalSection.parentNode.insertBefore(clonedSection, originalSection);
+    } else {
+        originalSection.parentNode.insertBefore(clonedSection, originalSection.nextElementSibling);
+    }
+}
+
+
+// --- SECTION ADDERS (FIXED TO SUPPORT RESTORE) ---
+let sectionCounter = 0;
+function addRichTextSection(restoredId, restoredTitle){ 
+    sectionCounter++; 
+    const id = restoredId || `sec_rich_${Date.now()}`;
+    const defaultTitle = restoredTitle || `Rich Content Section ${sectionCounter}`; 
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent'); 
+    
+    const html = ` 
+        <div class="section" id="${id}" data-default-title="${defaultTitle}" data-type="richtext"> 
+            ${universalControlsHTML()} 
+            <h3 class="section-title" style="color: ${primaryColor};">${defaultTitle}</h3> 
+            ${richTextToolbarHTML(id)} 
+            <div class="rich-editor sec-content" contenteditable="true" data-placeholder="Enter content here..."></div> 
+        </div> `; 
+    document.getElementById('sectionsContainer').insertAdjacentHTML('beforeend', html); 
+    
+    const newSection = document.getElementById(id);
+    const editor = newSection.querySelector('.rich-editor');
+    editor.addEventListener('keyup', () => updateToolbarState(editor));
+    editor.addEventListener('mouseup', () => updateToolbarState(editor));
+    editor.addEventListener('input', () => updateToolbarState(editor));
+    
+    return id;
+}
+
+function addCustomTable(restoredId, restoredTitle){ 
+    sectionCounter++; 
+    const id = restoredId || `sec_table_${Date.now()}`;
+    const defaultTitle = restoredTitle || `Custom Table ${sectionCounter}`; 
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent'); 
+    
+    const html = ` 
+        <div class="section" id="${id}" data-default-title="${defaultTitle}" data-type="table"> 
+            ${universalControlsHTML()} 
+            <h3 class="section-title" style="color: ${primaryColor};">${defaultTitle}</h3> 
+            <div class="table-config"> 
+                <label for="colCount_${id}">Columns:</label> 
+                <input type="number" id="colCount_${id}" value="3" min="1" max="10" onchange="createTableFromConfig(this)"> 
+            </div> 
+            <table> 
+                <thead> <tr> 
+                    <th><input type="text" value="Header 1"></th> 
+                    <th><input type="text" value="Header 2"></th> 
+                    <th><input type="text" value="Header 3"></th> 
+                    <th style="width:90px">Action</th> 
+                </tr> </thead> 
+                <tbody> <tr> 
+                    <td><input type="text" placeholder="Data 1"></td> 
+                    <td><input type="text" placeholder="Data 2"></td> 
+                    <td><input type="text" placeholder="Data 3"></td> 
+                    <td><button class="btn add" onclick="addRow(this)">+</button></td> 
+                </tr> </tbody> 
+            </table> 
+        </div> `; 
+    document.getElementById('sectionsContainer').insertAdjacentHTML('beforeend', html); 
+    return id;
+}
+
+function addImageSection(restoredId, restoredTitle) {
+    sectionCounter++;
+    const id = restoredId || `sec_image_${Date.now()}`;
+    const defaultTitle = restoredTitle || `Image Section ${sectionCounter}`;
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent');
+    const html = `
+        <div class="section" id="${id}" data-default-title="${defaultTitle}" data-type="image">
+            ${universalControlsHTML()}
+            <h3 class="section-title" style="color: ${primaryColor};">${defaultTitle}</h3>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:14px; display:block; margin-bottom:5px;">Image URL:</label>
+                <input type="url" class="sec-url" placeholder="Paste image URL here (e.g., https://example.com/image.jpg)" oninput="updateImagePreview(event)">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:14px; display:block; margin-bottom:5px;">Caption/Alt Text:</label>
+                <input type="text" class="sec-caption" placeholder="Enter image caption or alt text">
+            </div>
+            <div class="image-preview" style="max-height: 200px; overflow: hidden; text-align: center; margin-top: 10px; border: 1px dashed #ccc; padding: 5px; border-radius: 4px;">
+                <p style="color: #999; margin: 0;">Image Preview</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('sectionsContainer').insertAdjacentHTML('beforeend', html);
+    
+    // Re-attach input listener for restore
+    const newSection = document.getElementById(id);
+    const urlInput = newSection.querySelector('.sec-url');
+    if (urlInput) urlInput.addEventListener('input', updateImagePreview);
+
+    return id;
+}
+
+function addSimpleTextSection(restoredId, restoredTitle) {
+    sectionCounter++;
+    const id = restoredId || `sec_simple_${Date.now()}`;
+    const defaultTitle = restoredTitle || `Simple Text Section ${sectionCounter}`;
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent');
+    const html = `
+        <div class="section" id="${id}" data-default-title="${defaultTitle}" data-type="simpletext">
+            ${universalControlsHTML()}
+            <h3 class="section-title" style="color: ${primaryColor};">${defaultTitle}</h3>
+            <textarea placeholder="Enter simple paragraph text here. No formatting is supported."></textarea>
+        </div>
+    `;
+    document.getElementById('sectionsContainer').insertAdjacentHTML('beforeend', html);
+    return id;
+}
+
+function addActionButtonSection(restoredId, restoredTitle) {
+    sectionCounter++;
+    const id = restoredId || `sec_buttons_head_${Date.now()}`;
+    const defaultTitle = restoredTitle || `Action Buttons ${sectionCounter}`;
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent');
+    const containerId = `actionButtonsContainer_${id}`;
+    const html = `
+        <div class="section" id="${id}" data-default-title="${defaultTitle}" data-type="buttons">
+            ${universalControlsHTML()}
+            <h3 class="section-title" style="color: ${primaryColor};">${defaultTitle}</h3>
+            <div id="${containerId}" class="action-buttons-container"></div>
+            <div style="margin-top:8px">
+                <button class="btn add" onclick="addActionButton('Apply Now', '#', '${containerId}')">+ Add Button</button>
+            </div>
+            <div class="small">Buttons with custom labels, links, and colors (Renders with H2 heading).</div>
+        </div>
+    `;
+    document.getElementById('sectionsContainer').insertAdjacentHTML('beforeend', html);
+    
+    // Add default button row if not restoring
+    if (!restoredId) {
+        addActionButton('Apply Now', '#', containerId);
+    }
+    return id;
+}
+
+function addNoHeadingButtonsSection(restoredId, restoredTitle) {
+    sectionCounter++;
+    const id = restoredId || `sec_buttons_nohead_${Date.now()}`;
+    const defaultTitle = restoredTitle || `Buttons (No Heading) ${sectionCounter}`;
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent');
+    const containerId = `noHeadingButtonsContainer_${id}`;
+    const html = `
+        <div class="section" id="${id}" data-default-title="${defaultTitle}" data-type="noheading-buttons">
+            ${universalControlsHTML()}
+            <h3 class="section-title" style="color: ${primaryColor};">${defaultTitle}</h3>
+            <div id="${containerId}" class="action-buttons-container"></div>
+            <div style="margin-top:8px">
+                <button class="btn add" onclick="addActionButton('Apply Now', '#', '${containerId}')">+ Add Button</button>
+            </div>
+            <div class="small">Buttons with custom labels, links, and colors (Renders without H2 heading).</div>
+        </div>
+    `;
+    document.getElementById('sectionsContainer').insertAdjacentHTML('beforeend', html);
+
+    // Add default button row if not restoring
+    if (!restoredId) {
+        addActionButton('Apply Now', '#', containerId);
+    }
+    return id;
+}
+
+function addTextLinkSection(restoredId, restoredTitle) {
+    sectionCounter++;
+    const id = restoredId || `sec_textlink_${Date.now()}`;
+    const defaultTitle = restoredTitle || `Text Links Section ${sectionCounter}`;
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent');
+    const container = document.createElement('div');
+    container.className = 'section';
+    container.id = id;
+    container.setAttribute('data-default-title', defaultTitle);
+    container.setAttribute('data-type', 'textlink');
+    container.innerHTML = `
+        ${universalControlsHTML()}
+        <h3 class="section-title" style="color: ${primaryColor};">${defaultTitle}</h3>
+        <div class="text-link-container"></div>
+        <div style="margin-top:8px">
+            <button class="btn add" onclick="addLinkRow('Click Here', '#', '#007bff', '_blank', this.closest('.section').querySelector('.text-link-container'))">+ Add Link</button>
+        </div>
+        <div class="small">Links embedded in text/paragraphs.</div>
+    `;
+    document.getElementById('sectionsContainer').appendChild(container);
+
+    // Add default link row if not restoring
+    if (!restoredId) {
+        addLinkRow('Click Here', '#', '#007bff', '_blank', container.querySelector('.text-link-container'));
+    }
+    return id;
+}
+
+// --- CUSTOM TABLE FUNCTIONS ---
+function createTableFromConfig(input) {
+    const section = input.closest('.section');
+    const table = section.querySelector('table');
+    const colCount = parseInt(input.value) || 1;
+    const actualColCount = Math.max(1, Math.min(colCount, 10));
+
+    // 1. Update Header (thead)
+    const headerRow = table.querySelector('thead tr');
+    // Store current header values
+    let existingHeaderInputs = Array.from(headerRow.querySelectorAll('th:not(:last-child) input')).map(i => i.value);
+    headerRow.innerHTML = '';
+    for (let i = 0; i < actualColCount; i++) {
+        const headerValue = existingHeaderInputs[i] || `Column ${i + 1}`;
+        headerRow.insertAdjacentHTML('beforeend', `<th><input type="text" value="${headerValue}"></th>`);
+    }
+    headerRow.insertAdjacentHTML('beforeend', '<th style="width:90px">Action</th>');
+
+    // 2. Update Body (tbody)
+    const tbody = table.querySelector('tbody');
+    // Store data values from the first row
+    let firstRow = tbody.querySelector('tr');
+    let existingDataInputs = firstRow ? Array.from(firstRow.querySelectorAll('td:not(:last-child) input')).map(i => i.value) : [];
+
+    // Rebuild the first row to match the new column count
+    let newFirstRowContent = '';
+    for (let i = 0; i < actualColCount; i++) {
+        const placeholder = `Data ${i + 1}`;
+        const dataValue = existingDataInputs[i] || ''; // Keep existing data if column count decreases, otherwise empty
+        newFirstRowContent += `<td><input type="text" placeholder="${placeholder}" value="${dataValue}"></td>`;
+    }
+    newFirstRowContent += `<td><button class="btn add" onclick="addRow(this)">+</button></td>`;
+    
+    // Check if there are multiple rows; if so, delete the rest to start fresh
+    if (tbody.querySelectorAll('tr').length > 1) {
+        // Clear all rows and re-add just one
+        tbody.innerHTML = '';
+        tbody.insertAdjacentHTML('beforeend', `<tr>${newFirstRowContent}</tr>`);
+    } else if (firstRow) {
+        // If only one row, update its content
+        firstRow.innerHTML = newFirstRowContent;
+    } else {
+        // If no rows, create the first one
+        tbody.insertAdjacentHTML('beforeend', `<tr>${newFirstRowContent}</tr>`);
+    }
+}
+
+function addRow(button) {
+    const table = button.closest('table');
+    const tbody = table.querySelector('tbody');
+    const headerCount = table.querySelectorAll('thead th:not(:last-child)').length;
+
+    // 1. Change current button to 'delete'
+    const currentRowActionCell = button.closest('td');
+    currentRowActionCell.innerHTML = '<button class="btn remove" onclick="deleteRow(this)">-</button>';
+
+    // 2. Build new row content
+    let newRowContent = '';
+    for (let i = 0; i < headerCount; i++) {
+        newRowContent += `<td><input type="text" placeholder="Data ${i + 1}"></td>`;
+    }
+    // Add the new '+' button in the last cell
+    newRowContent += `<td><button class="btn add" onclick="addRow(this)">+</button></td>`;
+
+    // 3. Insert new row
+    tbody.insertAdjacentHTML('beforeend', `<tr>${newRowContent}</tr>`);
+}
+
+function deleteRow(button) {
+    const row = button.closest('tr');
+    const tbody = row.closest('tbody');
+    const isLastRow = row.nextElementSibling === null;
+
+    row.remove();
+
+    // If the deleted row was the last one, the new last row must get the '+' button
+    if (isLastRow) {
+        const newLastRow = tbody.querySelector('tr:last-child');
+        if (newLastRow) {
+            const actionCell = newLastRow.querySelector('td:last-child');
+            actionCell.innerHTML = '<button class="btn add" onclick="addRow(this)">+</button>';
+        }
+    }
+}
+
+// --- ACTION BUTTON FUNCTIONS ---
+function addActionButton(label = 'Action Button', link = '#', containerId = 'actionButtonsContainer') {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const color = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent');
+    addButtonRow(label, link, color, containerId);
+}
+
+function addButtonRow(label, link, color, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'button-row';
+    row.innerHTML = `
+        <input type="text" class="btn-label" value="${label}" placeholder="Label" style="width: 150px;">
+        <input type="url" class="btn-link" value="${link}" placeholder="Link URL">
+        <input type="color" class="btn-color" value="${color}" title="Button Color">
+        <div class="btn-controls">
+            <button class="btn remove" onclick="removeButtonRow(this)">-</button>
+        </div>
+    `;
+    container.appendChild(row);
+}
+
+function removeButtonRow(button) {
+    button.closest('.button-row').remove();
+}
+
+// --- TEXT LINK FUNCTIONS ---
+function addLinkRow(label, link, color, target, container) {
+    const row = document.createElement('div');
+    row.className = 'link-row';
+    row.innerHTML = `
+        <input type="text" class="link-label" value="${label}" placeholder="Link Text" style="width: 150px;">
+        <input type="url" class="link-link" value="${link}" placeholder="Link URL">
+        <input type="color" class="link-color" value="${color}" title="Link Color">
+        <select class="link-target" style="width: 100px;">
+            <option value="_blank" ${target === '_blank' ? 'selected' : ''}>New Tab</option>
+            <option value="_self" ${target === '_self' ? 'selected' : ''}>Same Tab</option>
+        </select>
+        <div class="btn-controls">
+            <button class="btn remove" onclick="removeLinkRow(this)">-</button>
+        </div>
+    `;
+    container.appendChild(row);
+}
+
+function removeLinkRow(button) {
+    button.closest('.link-row').remove();
+}
+
+
+function updateImagePreview(event) {
+    const input = event.target;
+    const section = input.closest('.section');
+    const previewDiv = section.querySelector('.image-preview');
+    const url = input.value;
+
+    previewDiv.innerHTML = '';
+    if (url) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = section.querySelector('.sec-caption')?.value || 'Image preview';
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.display = 'block';
+        img.style.margin = '0 auto';
+        
+        img.onerror = () => {
+            previewDiv.innerHTML = `<p style="color:var(--danger); margin:0;">❌ Error loading image or invalid URL</p>`;
+        };
+
+        previewDiv.appendChild(img);
+    } else {
+        previewDiv.innerHTML = `<p style="color: #999; margin: 0;">Image Preview</p>`;
+    }
+}
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+// --- SERIALIZATION / DESERIALIZATION (FIXED) ---
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+function serializeSections() {
+    const sections = [];
+    document.querySelectorAll('#sectionsContainer > .section').forEach(section => {
+        const id = section.id;
+        const type = section.dataset.type;
+        const title = section.querySelector('.section-title')?.innerText || section.dataset.defaultTitle;
+        const sectionData = { id, type, title, content: '', tableData: [], buttons: [], links: [] };
+
+        if (type === 'richtext') {
+            const editor = section.querySelector('.rich-editor');
+            sectionData.content = editor ? editor.innerHTML : '';
+            // Capture table width setting
+            const tableWidthInput = section.querySelector('[id^="tableWidthInput_"]');
+            if (tableWidthInput) {
+                 sectionData.tableWidth = tableWidthInput.value;
+            }
+        } else if (type === 'table') {
+            const colCountInput = section.querySelector('[id^="colCount_"]');
+            sectionData.colCount = colCountInput ? parseInt(colCountInput.value) : 0;
+            
+            // Capture table data (headers first, then all data cells)
+            section.querySelectorAll('table thead input[type="text"]').forEach(input => {
+                sectionData.tableData.push({ type: 'header', value: input.value });
+            });
+            section.querySelectorAll('table tbody input[type="text"]').forEach(input => {
+                sectionData.tableData.push({ type: 'data', value: input.value });
+            });
+            
+        } else if (type === 'image') {
+            sectionData.url = section.querySelector('.sec-url')?.value || '';
+            sectionData.caption = section.querySelector('.sec-caption')?.value || '';
+        } else if (type === 'simpletext') {
+            sectionData.content = section.querySelector('textarea')?.value || '';
+        } else if (type === 'buttons' || type === 'noheading-buttons') {
+            const container = section.querySelector('.action-buttons-container');
+            if (container) {
+                container.querySelectorAll('.button-row').forEach(row => {
+                    sectionData.buttons.push({
+                        label: row.querySelector('.btn-label').value,
+                        link: row.querySelector('.btn-link').value,
+                        color: row.querySelector('.btn-color').value
+                    });
+                });
+            }
+        } else if (type === 'textlink') {
+            const container = section.querySelector('.text-link-container');
+            if (container) {
+                container.querySelectorAll('.link-row').forEach(row => {
+                    sectionData.links.push({
+                        label: row.querySelector('.link-label').value,
+                        link: row.querySelector('.link-link').value,
+                        color: row.querySelector('.link-color').value,
+                        target: row.querySelector('.link-target').value
+                    });
+                });
+            }
+        }
+
+        sections.push(sectionData);
+    });
+
+    // Capture global data
+    const postTitle = document.getElementById('postTitle').value;
+    const primaryColor = document.getElementById('primaryColorPicker').value;
+    const secondaryColor = document.getElementById('secondaryColorPicker').value;
+    
+    // Include deleted store for full state restoration
+    const deletedStoreData = deletedStore.map(item => ({
+        id: item.id,
+        title: item.title,
+        html: item.html 
+    }));
+
+    return {
+        postTitle,
+        primaryColor,
+        secondaryColor,
+        sections,
+        deletedStore: deletedStoreData 
+    };
+}
+
+function downloadEdits() {
+    const data = serializeSections();
+    const filename = `RozgarDesk_CMS_Edits_${new Date().toISOString().slice(0, 10)}.json`;
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+    
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", filename);
+    document.body.appendChild(downloadAnchorNode); 
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+    alert(`Edits saved to ${filename}!`);
+}
+
+
+function deserializeSections(data) {
+    // 1. Clear existing sections
+    document.getElementById('sectionsContainer').innerHTML = '';
+    
+    // 2. Restore global data (colors, title)
+    document.getElementById('postTitle').value = data.postTitle || '';
+    document.getElementById('primaryColorPicker').value = data.primaryColor || '#007bff';
+    document.getElementById('secondaryColorPicker').value = data.secondaryColor || '#2c3e50';
+    updateCustomColors(); 
+
+    // 3. Restore main sections
+    data.sections.forEach(secData => {
+        let sectionId;
+        
+        // Use restored ID/Title in adder functions
+        if (secData.type === 'richtext') {
+            sectionId = addRichTextSection(secData.id, secData.title); 
+        } else if (secData.type === 'table') {
+            sectionId = addCustomTable(secData.id, secData.title);
+        } else if (secData.type === 'image') {
+            sectionId = addImageSection(secData.id, secData.title);
+        } else if (secData.type === 'simpletext') {
+            sectionId = addSimpleTextSection(secData.id, secData.title);
+        } else if (secData.type === 'buttons') {
+            sectionId = addActionButtonSection(secData.id, secData.title);
+        } else if (secData.type === 'noheading-buttons') {
+            sectionId = addNoHeadingButtonsSection(secData.id, secData.title);
+        } else if (secData.type === 'textlink') {
+            sectionId = addTextLinkSection(secData.id, secData.title);
+        } else {
+            console.warn(`Unknown section type: ${secData.type}`);
+            return;
+        }
+
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+
+        // Populate content based on type
+        if (secData.type === 'richtext') {
+            const editor = section.querySelector('.rich-editor');
+            if (editor) {
+                editor.innerHTML = secData.content;
+                // Restore table width/alignment for tables inside rich text
+                const tableWidthInput = section.querySelector('[id^="tableWidthInput_"]');
+                if (tableWidthInput && secData.tableWidth) {
+                    tableWidthInput.value = secData.tableWidth;
+                    // Apply width to existing tables (if any)
+                    editor.querySelectorAll('table').forEach(table => {
+                        table.style.width = secData.tableWidth + '%';
+                        table.style.maxWidth = '100%'; 
+                        if (!table.hasAttribute('align') || table.getAttribute('align') === '') {
+                             table.setAttribute('align', 'left'); 
+                        }
+                    });
+                }
+            }
+        } else if (secData.type === 'table') {
+            const tableConfigInput = section.querySelector('[id^="colCount_"]');
+            const tableBody = section.querySelector('table tbody');
+            
+            // 1. Restore Column Count and rebuild table structure (leaves one data row)
+            if (tableConfigInput && secData.colCount) {
+                tableConfigInput.value = secData.colCount;
+                createTableFromConfig(tableConfigInput); 
+            }
+            
+            // Ensure colCount is available, default to 1 if not
+            const colCount = secData.colCount || 1; 
+
+            // 2. Determine and add required number of data rows
+            const dataItems = secData.tableData.filter(i => i.type === 'data');
+            const totalDataItems = dataItems.length;
+            
+            // Calculate saved row count (ceiling division to account for partially filled last row)
+            const savedRowCount = Math.ceil(totalDataItems / colCount);
+            
+            let currentRowCount = tableBody.querySelectorAll('tr').length;
+            
+            // Add rows if needed
+            for (let i = currentRowCount; i < savedRowCount; i++) {
+                // Use the button in the last row to trigger addition
+                addRow(tableBody.querySelector('tr:last-child button.add')); 
+            }
+            
+            // Ensure row deletion buttons are set correctly (if more than 1 row)
+            tableBody.querySelectorAll('tr').forEach((row, index, list) => {
+                 const actionCell = row.querySelector('td:last-child');
+                 if (actionCell) {
+                     if (index === list.length - 1) { // Last row gets add button
+                         actionCell.innerHTML = '<button class="btn add" onclick="addRow(this)">+</button>';
+                     } else { // All other rows get delete button
+                         actionCell.innerHTML = '<button class="btn remove" onclick="deleteRow(this)">-</button>';
+                     }
+                 }
+            });
+
+            // 3. Populate Header and Data inputs
+            const allHeaderInputs = section.querySelectorAll('table thead input[type="text"]');
+            const allDataInputs = section.querySelectorAll('table tbody input[type="text"]');
+            
+            let headerIndex = 0;
+            let dataIndex = 0;
+            
+            secData.tableData.forEach(item => {
+                if (item.type === 'header') {
+                    if (allHeaderInputs[headerIndex]) {
+                        allHeaderInputs[headerIndex].value = item.value;
+                        headerIndex++;
+                    }
+                } else if (item.type === 'data') {
+                    if (allDataInputs[dataIndex]) {
+                        allDataInputs[dataIndex].value = item.value;
+                        dataIndex++;
+                    }
+                }
+            });
+            
+        } else if (secData.type === 'image') {
+            if (secData.url) section.querySelector('.sec-url').value = secData.url;
+            if (secData.caption) section.querySelector('.sec-caption').value = secData.caption;
+            // Trigger preview update
+            updateImagePreview({ target: section.querySelector('.sec-url') });
+
+        } else if (secData.type === 'simpletext') {
+            if (secData.content) section.querySelector('textarea').value = secData.content;
+
+        } else if (secData.type === 'buttons' || secData.type === 'noheading-buttons') {
+            const container = section.querySelector('.action-buttons-container');
+            if (container && secData.buttons) {
+                // Clear default buttons (if any)
+                container.innerHTML = ''; 
+                secData.buttons.forEach(btn => {
+                    // Pass the container's ID for correct reference
+                    addButtonRow(btn.label, btn.link, btn.color, container.id); 
+                });
+            }
+        } else if (secData.type === 'textlink') {
+            const container = section.querySelector('.text-link-container');
+            if (container && secData.links) {
+                // Clear default links (if any)
+                container.innerHTML = '';
+                secData.links.forEach(link => {
+                    // Pass the container element
+                    addLinkRow(link.label, link.link, link.color, link.target, container);
+                });
+            }
+        }
+    });
+    
+    // 4. Restore Deleted Store
+    if (data.deletedStore) {
+        deletedStore = data.deletedStore.map(item => ({
+            id: item.id,
+            title: item.title,
+            html: item.html 
+        }));
+        refreshRestoreUI();
+    }
+    
+    alert('Edits restored successfully!');
+}
+
+function triggerRestore() {
+    document.getElementById('restoreFileInput').click();
+}
+
+function handleRestoreFile(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            deserializeSections(data);
+        } catch (error) {
+            alert('Error reading JSON file. Please ensure it is a valid edits file.');
+            console.error('Error parsing JSON:', error);
+        }
+    };
+    reader.readAsText(file);
+    // Clear file input so the same file can be selected again
+    event.target.value = '';
+}
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+// --- PREVIEW / HTML DOWNLOAD ---
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+function getPostHTML() {
+    const primaryColor = document.getElementById('primaryColorPicker').value;
+    const secondaryColor = document.getElementById('secondaryColorPicker').value;
+    const postTitle = document.getElementById('postTitle').value || 'Untitled Post';
+    const sectionsData = serializeSections().sections;
+    
+    let sectionsHTML = '';
+
+    sectionsData.forEach(sec => {
+        const id = sec.id;
+        const title = sec.title;
+        const type = sec.type;
+
+        if (type === 'richtext') {
+            // Apply H2 and H3 styles to the content for preview generation
+            let content = sec.content
+                .replace(/<h1>/g, `<h1 style="font-size:32px;margin:20px 0 14px 0;font-weight:700;color:#1a1a1a;">`)
+                .replace(/<h2>/g, `<h2 style="font-size:26px;margin:18px 0 10px 0;font-weight:600;color: ${primaryColor};border-bottom: 2px solid ${primaryColor};padding-bottom:5px;">`)
+                .replace(/<h3>/g, `<h3 style="font-size:22px;margin:16px 0 8px 0;font-weight:600;color: ${secondaryColor};">`)
+                .replace(/<h4>/g, `<h4 style="font-size:18px;margin:14px 0 6px 0;font-weight:600;color: #333;">`);
+
+            sectionsHTML += `
+                <div class="post-section" id="${id}">
+                    <h2 style="color: ${primaryColor}; border-bottom: 3px solid ${primaryColor}; padding-bottom: 10px; margin-top: 40px; margin-bottom: 16px; font-size: 26px; font-weight: 600;">${title}</h2>
+                    <div class="post-content" style="line-height:1.7;">${content}</div>
+                </div>
+            `;
+        } else if (type === 'table') {
+            let tableContent = '';
+            const colCount = sec.colCount;
+            const headers = sec.tableData.filter(i => i.type === 'header').map(i => i.value);
+            const data = sec.tableData.filter(i => i.type === 'data').map(i => i.value);
+            
+            // Generate table headers
+            let headerRowHTML = '';
+            headers.forEach(h => {
+                headerRowHTML += `<th style="border:1px solid #ddd;padding:12px;text-align:left;vertical-align:middle;background:#e9f5ff;font-weight:700;color:${primaryColor};border-top: 3px solid ${primaryColor};">${h}</th>`;
+            });
+
+            // Generate table rows
+            let bodyRowsHTML = '';
+            for (let i = 0; i < data.length; i += colCount) {
+                let rowHTML = '';
+                for (let j = 0; j < colCount; j++) {
+                    const cellData = data[i + j] || ''; // Use empty string for missing cells in the last row
+                    rowHTML += `<td style="border:1px solid #ddd;padding:12px;text-align:left;vertical-align:middle;">${cellData}</td>`;
+                }
+                bodyRowsHTML += `<tr>${rowHTML}</tr>`;
+            }
+
+            tableContent = `
+                <table style="width:100%;border-collapse:collapse;margin:15px 0;">
+                    <thead>
+                        <tr>${headerRowHTML}</tr>
+                    </thead>
+                    <tbody>
+                        ${bodyRowsHTML}
+                    </tbody>
+                </table>
+            `;
+
+            sectionsHTML += `
+                <div class="post-section" id="${id}">
+                    <h2 style="color: ${primaryColor}; border-bottom: 3px solid ${primaryColor}; padding-bottom: 10px; margin-top: 40px; margin-bottom: 16px; font-size: 26px; font-weight: 600;">${title}</h2>
+                    ${tableContent}
+                </div>
+            `;
+
+        } else if (type === 'image') {
+            if (sec.url) {
+                sectionsHTML += `
+                    <div class="post-section" id="${id}" style="text-align:center; margin: 20px 0;">
+                        <figure>
+                            <img src="${sec.url}" alt="${sec.caption}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            ${sec.caption ? `<figcaption style="font-style:italic; font-size:14px; color:#6c757d; margin-top: 8px;">${sec.caption}</figcaption>` : ''}
+                        </figure>
+                    </div>
+                `;
+            }
+        } else if (type === 'simpletext') {
+            const paragraphs = sec.content.split('\n').map(p => `<p style="margin: 10px 0; font-size: 16px;">${p}</p>`).join('');
+            sectionsHTML += `
+                <div class="post-section" id="${id}">
+                    <h2 style="color: ${primaryColor}; border-bottom: 3px solid ${primaryColor}; padding-bottom: 10px; margin-top: 40px; margin-bottom: 16px; font-size: 26px; font-weight: 600;">${title}</h2>
+                    <div style="line-height:1.7;">${paragraphs}</div>
+                </div>
+            `;
+        } else if (type === 'buttons') {
+            let buttonBlock = sec.buttons.map(btn => `
+                <a href="${btn.link}" target="_blank" style="
+                    display: inline-block; 
+                    background-color: ${btn.color}; 
+                    color: white; 
+                    padding: 12px 25px; 
+                    margin: 8px; 
+                    border-radius: 8px; 
+                    text-decoration: none; 
+                    font-weight: 700;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    transition: all 0.2s;
+                    font-size: 16px;
+                ">${btn.label}</a>
+            `).join('');
+
+            sectionsHTML += `
+                <div class="post-section" id="${id}" style="text-align:center; margin: 30px 0;">
+                    <h2 style="color: ${primaryColor}; border-bottom: 3px solid ${primaryColor}; padding-bottom: 10px; margin-top: 40px; margin-bottom: 16px; font-size: 26px; font-weight: 600; text-align:center;">${title}</h2>
+                    <div style="margin-top:20px;">${buttonBlock}</div>
+                </div>
+            `;
+        } else if (type === 'noheading-buttons') {
+            let buttonBlock = sec.buttons.map(btn => `
+                <a href="${btn.link}" target="_blank" style="
+                    display: inline-block; 
+                    background-color: ${btn.color}; 
+                    color: white; 
+                    padding: 12px 25px; 
+                    margin: 8px; 
+                    border-radius: 8px; 
+                    text-decoration: none; 
+                    font-weight: 700;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    transition: all 0.2s;
+                    font-size: 16px;
+                ">${btn.label}</a>
+            `).join('');
+
+            sectionsHTML += `
+                <div class="post-section" id="${id}" style="text-align:center; margin: 30px 0;">
+                    <div style="margin-top:20px;">${buttonBlock}</div>
+                </div>
+            `;
+        } else if (type === 'textlink') {
+            let linksBlock = sec.links.map(link => `
+                <p style="margin: 10px 0; font-size: 16px;">
+                    <a href="${link.link}" target="${link.target}" style="
+                        color: ${link.color}; 
+                        font-weight: 700;
+                        text-decoration: underline;
+                        word-break: break-all;
+                    ">${link.label}</a>
+                </p>
+            `).join('');
+
+            sectionsHTML += `
+                <div class="post-section" id="${id}">
+                    <h2 style="color: ${primaryColor}; border-bottom: 3px solid ${primaryColor}; padding-bottom: 10px; margin-top: 40px; margin-bottom: 16px; font-size: 26px; font-weight: 600;">${title}</h2>
+                    <div style="line-height:1.7;">${linksBlock}</div>
+                </div>
+            `;
+        }
+    });
+
+    const fullHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${postTitle}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.7; background-color: #f4f7f9; margin: 0; padding: 0; }
+        .post-container { max-width: 1200px; margin: 0 auto; padding: 20px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .post-header-box { text-align: center; margin-top: 30px; margin-bottom: 30px; padding: 20px; background-color: ${primaryColor}; color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .post-header-box h1 { margin: 0; font-size: 36px; }
+        
+        /* Basic styles for rich content cleanup (can be expanded if needed) */
+        .post-content p { margin: 10px 0; }
+        .post-content ul, .post-content ol { margin: 10px 0; padding-left: 30px; list-style-position: outside; }
+        .post-content ul { list-style-type: disc; }
+        .post-content ol { list-style-type: decimal; }
+        
+        /* Table alignment fix for rich-editor tables */
+        .post-content table {
+            border-collapse: collapse;
+            margin-top: 10px;
+            border: 1px solid #e0e0e0;
+            max-width: 100%;
+        }
+        .post-content th, .post-content td {
+            border: 1px solid #e0e0e0;
+            padding: 8px 10px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        .post-content th {
+            background: #e3f2fd;
+            font-weight: 600;
+            color: #0d47a1;
+        }
+        .post-content table[align="center"] {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .post-content table[align="right"] {
+            margin-left: auto;
+            margin-right: 0;
+        }
+    </style>
+</head>
+<body>
+    ${UNIVERSAL_TOP_HEADER(primaryColor)}
+    <div class="post-container">
+        <div class="post-header-box">
+            <h1>${postTitle}</h1>
+        </div>
+        ${sectionsHTML}
+    </div>
+    ${UNIVERSAL_FOOTER}
+</body>
+</html>
+    `;
+    return fullHTML;
+}
+
+function previewPost() {
+    const previewDiv = document.getElementById('preview');
+    previewDiv.classList.remove('hidden');
+    previewDiv.innerHTML = getPostHTML();
+    
+    // Smooth scroll to preview area
+    previewDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+function downloadHTML() {
+    const htmlContent = getPostHTML();
+    const filename = `RozgarDesk_Post_${document.getElementById('postTitle').value.replace(/\s/g, '_').replace(/[^a-zA-Z0-9_]/g, '') || 'Export'}.html`;
+    
+    const dataStr = "data:text/html;charset=utf-8," + encodeURIComponent(htmlContent);
+    
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", filename);
+    document.body.appendChild(downloadAnchorNode); 
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+// --- INITIALIZATION ---
+(function() {
+    // Attach event listeners to default sections
+    const defaultEditor = document.getElementById('sec_details').querySelector('.rich-editor');
+    defaultEditor.addEventListener('keyup', (e) => updateToolbarState(e.target));
+    defaultEditor.addEventListener('mouseup', (e) => updateToolbarState(e.target));
+    defaultEditor.addEventListener('input', (e) => updateToolbarState(e.target));
+    
+    // Add default button row to default button section
+    // FIX: Update this call to use the correct container ID defined in the HTML
+    addActionButton('Apply Now', '#', 'actionButtonsContainer_sec_buttons'); 
+
+    // FIX: Simplified and fixed the paste handling logic to prevent crashes
+    document.querySelectorAll('.rich-editor').forEach(editor => {
+        editor.addEventListener('paste', function(e) {
+            e.preventDefault();
+            
+            const clipboardData = e.clipboardData || window.clipboardData;
+            const text = clipboardData.getData('text/plain');
+            const html = clipboardData.getData('text/html');
+
+            if (html) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                
+                // --- Simple HTML Cleanup for tables only ---
+                const tables = tempDiv.querySelectorAll('table');
+                if (tables.length > 0) {
+                    // If tables are present, perform minimal cleanup and insert HTML
+                    // Create a fragment containing only the allowed content
+                    const fragment = document.createDocumentFragment();
+                    Array.from(tempDiv.childNodes).forEach(node => {
+                        // Keep text nodes and tables, convert other blocks to plain text where possible
+                        if (node.nodeType === 3) { // Text Node
+                            fragment.appendChild(document.createTextNode(node.textContent));
+                        } else if (node.tagName === 'TABLE') {
+                            // Clear inline styles from table and its contents for cleanliness
+                            node.removeAttribute('style');
+                            node.querySelectorAll('*').forEach(el => el.removeAttribute('style'));
+                            fragment.appendChild(node);
+                        } else {
+                            // For other elements (P, DIV, Hx, etc.), fall back to text content
+                            fragment.appendChild(document.createTextNode(node.textContent));
+                        }
+                    });
+
+                    editor.focus();
+                    const range = window.getSelection().getRangeAt(0);
+                    range.deleteContents();
+                    range.insertNode(fragment);
+                    range.collapse(false);
+                    return;
+
+                }
+            }
+            // Default to plain text insert for everything else or if no tables were found in HTML
+            document.execCommand('insertText', false, text);
+        });
+    });
+
+    // Close clone dropdown on outside click:
+    document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('cloneDropdown');
+        const cloneButton = document.querySelector('[onclick*="cloneSectionDialog"]'); 
+        
+        if (dropdown && !dropdown.contains(e.target) && e.target !== cloneButton && !e.target.closest('[onclick*="cloneSectionDialog"]')) {
+            dropdown.remove();
+        }
+    });
+    
+    updateCustomColors();
+
+})();
+</script>
+</body>
+</html>
