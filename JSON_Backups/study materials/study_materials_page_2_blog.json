@@ -1,0 +1,79 @@
+{
+  "headerHtml": "   <header\n      class=\"preview-header-blue\"\n      style=\"\n        background-color: #049cfb;\n        max-width: 1200px;\n        margin: 0 auto;\n        padding: 12px 20px;\n        display: flex;\n        align-items: center;\n        justify-content: space-between;\n        flex-wrap: wrap;\n        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\n        border-bottom-left-radius: 8px;\n        border-bottom-right-radius: 8px;\n      \"\n    >\n      <a\n        href=\"https://rozgardesk.in/\"\n        style=\"\n          color: white;\n          text-decoration: none;\n          font-size: 22px;\n          font-weight: 700;\n        \"\n      >\n        RozgarDesk.in\n      </a>\n      <nav style=\"display: flex; gap: 15px\">\n        <a\n          href=\"https://rozgardesk.in/\"\n          style=\"color: white; text-decoration: none; font-size: 16px\"\n          >Home</a\n        >\n      </nav>\n    </header>",
+  "footerHtml": "    <footer\n      style=\"\n        all: initial;\n        display: block;\n        width: 100%;\n        text-align: center;\n        padding: 15px 10px;\n        background-color: #2c3e50;\n        color: #ffffff;\n        font-family: Arial, Helvetica, sans-serif;\n        font-size: 14px;\n        box-sizing: border-box;\n        max-width: 1200px;\n        margin: 0 auto;\n        border-top-left-radius: 8px;\n        border-top-right-radius: 8px;\n      \"\n    >\n      <p style=\"all: unset; display: inline; color: #ffffff\">\n        &copy; 2025 <strong>Rozgardesk</strong>. All rights reserved.\n        <a\n          href=\"../../privacypolicy.html\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          Privacy Policy\n        </a>\n        |\n        <a\n          href=\"../../aboutus.html\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          About Us\n        </a>\n        |\n\n        <a\n          href=\"../../terms_and_conditions.html\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          Terms and Conditions\n        </a>\n        |\n\n        <a\n          href=\"https://forms.gle/KzEzY3eSsJYxnxgXA\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          Contact Us\n        </a>\n      </p>\n    </footer>",
+  "mainContentHtml": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Fast Tricks to Convert Active ⇄ Passive — Quick Guide for Govt Exams</title>\n  <style>\n    :root{--bg:#fff7ff;--card:#ffffff;--accent:#ff6b6b;--accent2:#6b6bff;--muted:#555}\n    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; background:linear-gradient(120deg,var(--bg),#f0fbff); margin:0; padding:24px; color:#222}\n    .container{max-width:900px;margin:12px auto;padding:28px;background:var(--card);border-radius:16px;box-shadow:0 10px 30px rgba(50,50,93,.07)}\n    header h1{margin:0 0 6px;font-size:28px;color:var(--accent2)}\n    header p{margin:0 0 18px;color:var(--muted)}\n    .hero{display:flex;gap:18px;align-items:center}\n    .badge{background:linear-gradient(90deg,var(--accent),var(--accent2));padding:8px 12px;border-radius:999px;color:white;font-weight:700}\n    h2{color:var(--accent);margin-top:22px}\n    .rule{background:#fff6f6;border-left:6px solid var(--accent);padding:12px;border-radius:8px}\n    ol{margin:8px 0 18px 20px}\n    ul{margin:8px 0 18px 20px}\n    .examples{display:grid;grid-template-columns:1fr 1fr;gap:12px}\n    .card{background:linear-gradient(180deg,#ffffff,#fbfbff);padding:12px;border-radius:8px;border:1px solid #f1f1f6}\n    .pyq{background:linear-gradient(180deg,#fcfff4,#f7fff0);padding:10px;border-radius:8px;border:1px dashed #e6f2d9}\n    footer{font-size:13px;color:#666;margin-top:18px}\n    code{background:#f4f7ff;padding:2px 6px;border-radius:6px;color:#08306b}\n    /* responsive */\n    @media (max-width:700px){.examples{grid-template-columns:1fr} .hero{flex-direction:column;align-items:flex-start}}\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <header class=\"hero\">\n      <div>\n        <div class=\"badge\">Quick Tricks</div>\n        <h1>Fastest Tricks to Convert Active ⇄ Passive — Ace Govt Exam English</h1>\n        <p>Short, exam-focused methods to convert sentences fast. Learn pattern shortcuts, see examples and solve 15+ PYQs.</p>\n      </div>\n    </header>\n\n    <main>\n      <section>\n        <h2>Why this matters in govt exams</h2>\n        <p class=\"rule\">Active–Passive questions are common in English sections of competitive exams. Speed and accuracy come from recognizing patterns and applying a few mechanical steps. Memorize formulae below — not long grammar theory.</p>\n      </section>\n\n      <section>\n        <h2>Universal 6-step shortcut (works in 90% of questions)</h2>\n        <ol>\n          <li><strong>Find subject (S), verb (V) and object (O).</strong> Write them as S — V — O.</li>\n          <li><strong>Swap S and O.</strong> New subject = old object.</li>\n          <li><strong>Change verb to correct passive form:</strong> <em>be</em> + <strong>past participle</strong> (V3). Use appropriate tense of <em>be</em> (is/are/was/were/has been/was being/will be).</li>\n          <li><strong>Add \"by\" + old subject</strong> if the agent is required (often optional in exams).</li>\n          <li><strong>Adjust pronouns & number</strong> (I → me, we → us; singular/plural agreement).</li>\n          <li><strong>Check tense & voice nuance:</strong> Progressive → \"being\" + V3 (was doing → was being done). Perfect → \"been\" + V3 (has done → has been done).</li>\n        </ol>\n      </section>\n\n      <section>\n        <h2>Quick tense cheatsheet (memorize these)</h2>\n        <ul>\n          <li>Simple Present: <code>V(s/es)</code> → <code>is/are + V3</code> (e.g., \"He writes a letter.\" → \"A letter is written by him.\")</li>\n          <li>Simple Past: <code>V2</code> → <code>was/were + V3</code></li>\n          <li>Present Continuous: <code>is/are Ving</code> → <code>is/are being + V3</code></li>\n          <li>Past Continuous: <code>was/were Ving</code> → <code>was/were being + V3</code></li>\n          <li>Present Perfect: <code>has/have V3</code> → <code>has/have been + V3</code></li>\n          <li>Modal (can/may/should): <code>modal + V</code> → <code>modal + be + V3</code> (e.g., \"They can solve\" → \"It can be solved.\")</li>\n          <li>Imperative: <code>V</code> → <code>Let + object + be + V3</code> or \"Be + V3 + by ...\" (use \"Let\" for polite commands)</li>\n        </ul>\n      </section>\n\n      <section>\n        <h2>Fast mental tricks (beat time pressure)</h2>\n        <ul>\n          <li><strong>Spot the object first.</strong> If you can point to what receives the action, you've found the new subject for passive.</li>\n          <li><strong>Look for auxiliary verbs.</strong> They tell you which form of <em>be</em> to use (has/have → has been/have been).</li>\n          <li><strong>If \"by\" is missing in the options, choose the passive without agent.</strong Most objective-style answers omit the agent.</li>\n          <li><strong>Modal → just insert <em>be</em>.</strong> Example: \"should finish\" → \"should be finished.\"</li>\n          <li><strong>Shorten in your head:</strong> S—V—O → O—(be + V3)—(by S).</strong>\n        </ul>\n      </section>\n\n      <section>\n        <h2>Examples (Active → Passive and back)</h2>\n        <div class=\"examples\">\n          <div class=\"card\">\n            <strong>Active:</strong> The committee elected Raj as chairman.\n            <p><strong>Passive:</strong> Raj was elected chairman by the committee.</p>\n          </div>\n\n          <div class=\"card\">\n            <strong>Active:</strong> Someone has stolen my bike.\n            <p><strong>Passive:</strong> My bike has been stolen (by someone).</p>\n          </div>\n\n          <div class=\"card\">\n            <strong>Active:</strong> People speak Hindi in many parts of India.\n            <p><strong>Passive:</strong> Hindi is spoken in many parts of India.</p>\n          </div>\n\n          <div class=\"card\">\n            <strong>Active:</strong> They are painting the bridge.\n            <p><strong>Passive:</strong> The bridge is being painted (by them).</p>\n          </div>\n        </div>\n      </section>\n\n      <section>\n        <h2>Past Year Questions (PYQs) — Practice 15 sentences</h2>\n        <p>Convert each to passive voice (many are adapted from common govt-exam patterns):</p>\n        <div class=\"pyq\">\n          <ol>\n            <li>India will launch the mission next month.</li>\n            <li>They have completed the form.</li>\n            <li>Shakespeare wrote Hamlet.</li>\n            <li>Someone has stolen her handbag.</li>\n            <li>The police arrested the thief yesterday.</li>\n            <li>People speak English all over the world.</li>\n            <li>The teacher will ask a question.</li>\n            <li>They are building a new hospital in the town.</li>\n            <li>We must finish the project by Friday.</li>\n            <li>My friend made a beautiful cake for the party.</li>\n            <li>He had solved the problem before the exam.</li>\n            <li>The manager can approve the proposal.</li>\n            <li>Someone is delivering the parcel now.</li>\n            <li>Do they serve breakfast here?</li>\n            <li>The government will implement the policy soon.</li>\n          </ol>\n        </div>\n        <p style=\"margin-top:12px;color:var(--muted)\">(Answers below — check yourself after attempting.)</p>\n      </section>\n\n      <section>\n        <h2>Answer key — Passive forms</h2>\n        <ol>\n          <li>The mission will be launched by India next month.</li>\n          <li>The form has been completed (by them).</li>\n          <li>Hamlet was written by Shakespeare.</li>\n          <li>Her handbag has been stolen (by someone).</li>\n          <li>The thief was arrested by the police yesterday.</li>\n          <li>English is spoken all over the world.</li>\n          <li>A question will be asked by the teacher.</li>\n          <li>A new hospital is being built in the town (by them).</li>\n          <li>The project must be finished by Friday.</li>\n          <li>A beautiful cake was made by my friend for the party.</li>\n          <li>The problem had been solved by him before the exam.</li>\n          <li>The proposal can be approved by the manager.</li>\n          <li>The parcel is being delivered now (by someone).</li>\n          <li>Is breakfast served here?</li>\n          <li>The policy will be implemented by the government soon.</li>\n        </ol>\n      </section>\n\n      <section>\n        <h2>Final tips for exam day</h2>\n        <ul>\n          <li>Practice 10–15 conversions daily — speed matters more than long explanations.</li>\n          <li>When options are given, eliminate those with wrong auxiliaries (e.g., \"have been\" vs \"was being\").</li>\n          <li>Watch out for non-finite verbs: \"to do\" or \"doing\" — they need special handling (\"to be done\", \"being done\").</li>\n          <li>Prefer shorter passive answers without \"by\" unless agent is asked or meaningful.</li>\n        </ul>\n      </section>\n\n      <footer>\n        <p>Prepared for quick revision — keep this page handy on your phone while practising. Good luck — ace that English paper!</p>\n      </footer>\n    </main>\n  </div>\n</body>\n</html>\n",
+  "isLeftSidebarVisible": false,
+  "isRightSidebarVisible": true,
+  "colors": {
+    "linkColor": "#053f76",
+    "leftSidebarBg": "#eff6ff",
+    "rightSidebarBg": "#ddf8f5",
+    "mainBg": "#ffffff"
+  },
+  "leftSidebar": [
+    {
+      "id": "l1",
+      "heading": "Navigation",
+      "links": [
+        {
+          "text": "Home",
+          "url": "#"
+        },
+        {
+          "text": "About",
+          "url": "#"
+        }
+      ]
+    },
+    {
+      "id": "l2",
+      "heading": "Archives",
+      "links": [
+        {
+          "text": "October 2025",
+          "url": "#"
+        },
+        {
+          "text": "September 2025",
+          "url": "#"
+        }
+      ]
+    }
+  ],
+  "rightSidebar": [
+    {
+      "id": "r1",
+      "heading": "Direct Links",
+      "links": [
+        {
+          "text": "Latest Gov Jobs",
+          "url": "https://www.rozgardesk.in/"
+        },
+        {
+          "text": "Admit Cards",
+          "url": "https://www.rozgardesk.in/admitcards/latest-govt-jobs-admit-cards"
+        },
+        {
+          "id": "id-1761720869190-kro4wc84q",
+          "text": "Answer Keys",
+          "url": "https://www.rozgardesk.in/govt-job-answer-keys"
+        },
+        {
+          "id": "id-1761720885438-uqufxapv2",
+          "text": "Results",
+          "url": "https://www.rozgardesk.in/sarkari-result-govt-job"
+        },
+        {
+          "id": "id-1761720904278-f3xdat70k",
+          "text": "Sports Quota Jobs",
+          "url": "https://www.rozgardesk.in/sports-quota-govt-jobs"
+        },
+        {
+          "id": "id-1761720922022-e2sbcn9qq",
+          "text": "Walk-In Jobs Govt",
+          "url": "https://www.rozgardesk.in/walk-in-govt-jobs"
+        }
+      ]
+    }
+  ]
+}
