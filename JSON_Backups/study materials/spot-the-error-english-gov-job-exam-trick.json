@@ -1,0 +1,99 @@
+{
+  "headerHtml": "   <header\n      class=\"preview-header-blue\"\n      style=\"\n        background-color: #049cfb;\n        max-width: 1200px;\n        margin: 0 auto;\n        padding: 12px 20px;\n        display: flex;\n        align-items: center;\n        justify-content: space-between;\n        flex-wrap: wrap;\n        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\n        border-bottom-left-radius: 8px;\n        border-bottom-right-radius: 8px;\n      \"\n    >\n      <a\n        href=\"https://rozgardesk.in/\"\n        style=\"\n          color: white;\n          text-decoration: none;\n          font-size: 22px;\n          font-weight: 700;\n        \"\n      >\n        RozgarDesk.in\n      </a>\n      <nav style=\"display: flex; gap: 15px\">\n        <a\n          href=\"https://rozgardesk.in/\"\n          style=\"color: white; text-decoration: none; font-size: 16px\"\n          >Home</a\n        >\n      </nav>\n    </header>",
+  "footerHtml": "    <footer\n      style=\"\n        all: initial;\n        display: block;\n        width: 100%;\n        text-align: center;\n        padding: 15px 10px;\n        background-color: #2c3e50;\n        color: #ffffff;\n        font-family: Arial, Helvetica, sans-serif;\n        font-size: 14px;\n        box-sizing: border-box;\n        max-width: 1200px;\n        margin: 0 auto;\n        border-top-left-radius: 8px;\n        border-top-right-radius: 8px;\n      \"\n    >\n      <p style=\"all: unset; display: inline; color: #ffffff\">\n        &copy; 2025 <strong>Rozgardesk</strong>. All rights reserved.\n        <a\n          href=\"../../privacypolicy.html\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          Privacy Policy\n        </a>\n        |\n        <a\n          href=\"../../aboutus.html\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          About Us\n        </a>\n        |\n\n        <a\n          href=\"../../terms_and_conditions.html\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          Terms and Conditions\n        </a>\n        |\n\n        <a\n          href=\"https://forms.gle/KzEzY3eSsJYxnxgXA\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          Contact Us\n        </a>\n      </p>\n    </footer>",
+  "mainContentHtml": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>English Error Detection Tricks | Govt Exams</title>\n  <style>\n    body {\n      font-family: 'Segoe UI', sans-serif;\n      background-color: #f7faff;\n      color: #003366;\n      margin: 0;\n      padding: 0;\n      line-height: 1.6;\n    }\n    header {\n      background: linear-gradient(135deg, #007bff, #00aaff);\n      color: white;\n      text-align: center;\n      padding: 40px 20px;\n      border-bottom: 5px solid #003366;\n    }\n    h1 {\n      font-size: 2.2em;\n      margin-bottom: 10px;\n    }\n    h2 {\n      color: #0055aa;\n      border-left: 5px solid #007bff;\n      padding-left: 10px;\n      margin-top: 40px;\n    }\n    h3 {\n      color: #0066cc;\n      margin-top: 25px;\n    }\n    .container {\n      max-width: 950px;\n      margin: auto;\n      padding: 20px;\n      background: #ffffff;\n      box-shadow: 0 0 12px rgba(0,0,0,0.1);\n      border-radius: 12px;\n    }\n    .tip-box {\n      background: #e6f2ff;\n      border-left: 5px solid #007bff;\n      padding: 10px 15px;\n      border-radius: 6px;\n      margin: 15px 0;\n    }\n    .example {\n      background: #f0f8ff;\n      border: 1px solid #cce5ff;\n      padding: 8px 12px;\n      border-radius: 6px;\n      margin: 10px 0;\n      color: #002244;\n    }\n    ul {\n      list-style-type: disc;\n      padding-left: 25px;\n    }\n    .faq {\n      background-color: #f9fcff;\n      border: 1px solid #cce5ff;\n      border-radius: 10px;\n      margin: 10px 0;\n      padding: 10px 15px;\n    }\n    .faq h3 {\n      margin: 0;\n      color: #004080;\n    }\n    footer {\n      background: #004080;\n      color: white;\n      text-align: center;\n      padding: 20px 10px;\n      margin-top: 30px;\n      border-top: 4px solid #007bff;\n    }\n    .highlight {\n      color: #007bff;\n      font-weight: bold;\n    }\n    .pyq-box {\n      background: #e8f4ff;\n      border-left: 5px solid #0055cc;\n      padding: 10px 15px;\n      border-radius: 8px;\n      margin: 15px 0;\n    }\n  </style>\n</head>\n<body>\n\n<header>\n  <h1>Spot the Error in given sentence | Govt Exam Tricks & PYQs</h1>\n  <p>Master Error Detection in English for SSC, Banking, Railways, and all Competitive Exams!</p>\n</header>\n\n<div class=\"container\">\n\n  <h2>🔍 Introduction</h2>\n  <p>\n    Error detection is one of the most scoring yet tricky sections in English for government exams like <b>SSC CGL, CHSL, Banking, Railways, CDS, and others</b>. \n    In just a few seconds, you must spot a grammatical or structural mistake in a sentence. The good news? With the right approach and pattern recognition, you can solve each question in under <span class=\"highlight\">5 seconds!</span>\n  </p>\n\n  <div class=\"tip-box\">\n    💡 <b>Pro Tip:</b> The trick is not reading the sentence fast — it's reading it <u>smartly</u>. Look for common patterns of errors first.\n  </div>\n\n  <h2>🚀 5-Second Trick Strategy</h2>\n  <ul>\n    <li><b>Step 1:</b> Quickly identify the sentence type — tense, voice, or conditional.</li>\n    <li><b>Step 2:</b> Look for <span class=\"highlight\">subject-verb agreement</span> first (the most common error type).</li>\n    <li><b>Step 3:</b> Check <span class=\"highlight\">prepositions</span> — they’re short but sneaky!</li>\n    <li><b>Step 4:</b> Verify <span class=\"highlight\">articles, determiners, and tenses</span>.</li>\n    <li><b>Step 5:</b> Finally, scan the <span class=\"highlight\">meaning</span> — sometimes logic reveals the error.</li>\n  </ul>\n\n  <div class=\"tip-box\">\n    ⚡ <b>Quick Hack:</b> 80% of \"find the error\" questions are from just 5 topics — Subject-Verb, Tenses, Articles, Prepositions, and Parallelism.\n  </div>\n\n  <h2>🧠 Common Error Categories with Examples</h2>\n\n  <h3>1️⃣ Subject-Verb Agreement</h3>\n  <div class=\"example\">\n    ❌ The list of items <b>are</b> on the table. <br>\n    ✅ The list of items <b>is</b> on the table.  \n  </div>\n  <p>Always match the verb with the <u>main subject</u>, not the noun nearest to it.</p>\n\n  <h3>2️⃣ Tense Consistency</h3>\n  <div class=\"example\">\n    ❌ He <b>has completed</b> his work before you <b>came</b>. <br>\n    ✅ He <b>had completed</b> his work before you <b>came</b>.\n  </div>\n  <p>When two actions occur in the past, the earlier action takes <b>Past Perfect</b>.</p>\n\n  <h3>3️⃣ Preposition Errors</h3>\n  <div class=\"example\">\n    ❌ He is good <b>in</b> English. <br>\n    ✅ He is good <b>at</b> English.\n  </div>\n  <p>Some words always take fixed prepositions — memorize them with short tricks.</p>\n\n  <h3>4️⃣ Articles & Determiners</h3>\n  <div class=\"example\">\n    ❌ She is <b>a</b> honest girl. <br>\n    ✅ She is <b>an</b> honest girl.\n  </div>\n\n  <h3>5️⃣ Parallelism</h3>\n  <div class=\"example\">\n    ❌ He likes <b>reading, to write, and singing</b>. <br>\n    ✅ He likes <b>reading, writing, and singing</b>.\n  </div>\n\n  <h2>⚙️ Quick Tricks & Mnemonics</h2>\n  <ul>\n    <li>🔹 <b>Preposition Fix:</b> \"Good at\", \"Interested in\", \"Depend on\", \"Accused of\".</li>\n    <li>🔹 <b>Subject-Verb Rule:</b> Each, Every, Either, Neither → take singular verb.</li>\n    <li>🔹 <b>Neither…nor</b> → verb agrees with the <u>nearest subject</u>.</li>\n    <li>🔹 <b>“A number of”</b> → plural verb | <b>“The number of”</b> → singular verb.</li>\n    <li>🔹 <b>Little/Few</b> → Negative sense | <b>A little/A few</b> → Positive sense.</li>\n  </ul>\n\n  <div class=\"tip-box\">\n    🎯 <b>Memory Trick:</b> “<u>One Word, One Verb</u>” — Don’t repeat verbs unnecessarily.  \n    Example: ❌ He <b>did</b> not <b>went</b>. ✅ He <b>did not go</b>.\n  </div>\n\n  <h2>📘 Previous Year Questions (PYQs)</h2>\n\n  <div class=\"pyq-box\">\n    <b>PYQ 1:</b> Each of the boys <b>have</b> done their homework.  \n    <br>✅ Correct: Each of the boys <b>has</b> done his homework.\n  </div>\n\n  <div class=\"pyq-box\">\n    <b>PYQ 2:</b> No sooner he reached the station <b>when</b> the train left.  \n    <br>✅ Correct: No sooner <b>did he reach</b> the station <b>than</b> the train left.\n  </div>\n\n  <div class=\"pyq-box\">\n    <b>PYQ 3:</b> He is one of the best player in the team.  \n    <br>✅ Correct: He is one of the best <b>players</b> in the team.\n  </div>\n\n  <div class=\"pyq-box\">\n    <b>PYQ 4:</b> Neither of the two friends <b>were</b> invited.  \n    <br>✅ Correct: Neither of the two friends <b>was</b> invited.\n  </div>\n\n  <div class=\"pyq-box\">\n    <b>PYQ 5:</b> The scenery of Kashmir are beautiful.  \n    <br>✅ Correct: The scenery of Kashmir <b>is</b> beautiful.\n  </div>\n\n  <div class=\"pyq-box\">\n    <b>PYQ 6:</b> The teacher asked me that why was I late.  \n    <br>✅ Correct: The teacher asked me <b>why I was late</b>.\n  </div>\n\n  <div class=\"pyq-box\">\n    <b>PYQ 7:</b> He prefers coffee than tea.  \n    <br>✅ Correct: He prefers coffee <b>to</b> tea.\n  </div>\n\n  <h2>💬 15 Most Asked FAQs</h2>\n\n  <div class=\"faq\">\n    <h3>Q1. What is “Find the Error” question in exams?</h3>\n    <p>It’s a sentence divided into parts — one part has a grammatical error, and you must identify it.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q2. Which topics are most common?</h3>\n    <p>Subject-verb agreement, articles, tenses, prepositions, and modifiers.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q3. How can I solve error detection in 5 seconds?</h3>\n    <p>Spot the subject and verb first. If they don’t agree in number or tense, that’s your answer!</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q4. Are vocabulary errors asked?</h3>\n    <p>Rarely. Focus on grammar-based errors first.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q5. Is “Find the Error” the same as Sentence Improvement?</h3>\n    <p>No, in “Find the Error” you only find the wrong part, not correct it.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q6. How many questions come in SSC exams?</h3>\n    <p>Usually 3–5 questions in Tier-I, and more detailed ones in Tier-II.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q7. How do I practice?</h3>\n    <p>Use PYQs from SSC CGL, CHSL, Bank PO papers, and online quizzes.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q8. How do I remember grammar rules?</h3>\n    <p>Make short notes and revise through examples. Use flashcards or daily mock tests.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q9. What’s the most ignored area?</h3>\n    <p>Prepositions and parallel structure — they’re small but tricky.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q10. Should I read the full sentence first?</h3>\n    <p>No. Scan for structure — check subject, verb, connectors, then meaning.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q11. What is the fastest way to spot tense errors?</h3>\n    <p>Look for time indicators like “before”, “after”, “since”, “by the time”. They often signal tense issues.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q12. How do I spot article errors?</h3>\n    <p>Check if the noun is countable, singular, and known to the reader. “A/An” = first mention; “The” = known.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q13. Do all exams follow the same pattern?</h3>\n    <p>Mostly yes — SSC, Banking, and Railways have similar grammar focus.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q14. Can I skip reading comprehension to focus on error detection?</h3>\n    <p>No, both are important. But error detection takes less time and gives quicker marks.</p>\n  </div>\n\n  <div class=\"faq\">\n    <h3>Q15. How can I build accuracy?</h3>\n    <p>Practice daily and review every mistake. Remember: repetition builds reflex!</p>\n  </div>\n\n  <h2>🏁 Final Tips</h2>\n  <ul>\n    <li>🔹 Practice at least <b>20 questions daily</b>.</li>\n    <li>🔹 Note every new grammar rule you discover.</li>\n    <li>🔹 Time yourself — accuracy + speed wins exams.</li>\n    <li>🔹 Read English newspapers or articles to develop intuition for correct grammar.</li>\n  </ul>\n\n  <div class=\"tip-box\">\n    🌟 <b>Golden Rule:</b> “When confused, check the verb.”  \n    Most errors hide in verbs — agreement, form, or tense!\n  </div>\n\n</div>\n\n\n</body>\n</html>\n",
+  "isLeftSidebarVisible": false,
+  "isRightSidebarVisible": true,
+  "colors": {
+    "linkColor": "#053f76",
+    "leftSidebarBg": "#eff6ff",
+    "rightSidebarBg": "#ddf8f5",
+    "mainBg": "#ffffff"
+  },
+  "leftSidebar": [
+    {
+      "id": "l1",
+      "heading": "Navigation",
+      "links": [
+        {
+          "text": "Home",
+          "url": "#"
+        },
+        {
+          "text": "About",
+          "url": "#"
+        }
+      ]
+    },
+    {
+      "id": "l2",
+      "heading": "Archives",
+      "links": [
+        {
+          "text": "October 2025",
+          "url": "#"
+        },
+        {
+          "text": "September 2025",
+          "url": "#"
+        }
+      ]
+    }
+  ],
+  "rightSidebar": [
+    {
+      "id": "r1",
+      "heading": "Direct Links",
+      "links": [
+        {
+          "text": "Latest Gov Jobs",
+          "url": "https://www.rozgardesk.in/"
+        },
+        {
+          "text": "Admit Cards",
+          "url": "https://www.rozgardesk.in/admitcards/latest-govt-jobs-admit-cards"
+        },
+        {
+          "id": "id-1761720869190-kro4wc84q",
+          "text": "Answer Keys",
+          "url": "https://www.rozgardesk.in/govt-job-answer-keys"
+        },
+        {
+          "id": "id-1761720885438-uqufxapv2",
+          "text": "Results",
+          "url": "https://www.rozgardesk.in/sarkari-result-govt-job"
+        },
+        {
+          "id": "id-1761720904278-f3xdat70k",
+          "text": "Sports Quota Jobs",
+          "url": "https://www.rozgardesk.in/sports-quota-govt-jobs"
+        },
+        {
+          "id": "id-1761720922022-e2sbcn9qq",
+          "text": "Walk-In Jobs Govt",
+          "url": "https://www.rozgardesk.in/walk-in-govt-jobs"
+        }
+      ]
+    },
+    {
+      "id": "id-1761760314269-qhkdgs9iy",
+      "heading": "Study Materials",
+      "links": [
+        {
+          "text": "Active Passive Short Tricks for Gov Exams",
+          "url": "Active-Passive-Voice-Tricks-Shortcuts-Govt-Job-Exams.html"
+        },
+        {
+          "id": "id-1761760364429-g47gey5fp",
+          "text": "Direct Indirect Short Tricks for Gov  Exams",
+          "url": "Direct-Indirect-Tricks-Shortcuts-Govt-Job-Exams.html"
+        },
+        {
+          "id": "id-1761831419213-zysw4gmrm",
+          "text": "Error Detection in Sentence Tricks English for Gov Exams",
+          "url": "spot-the-error-english-gov-job-exam-trick.html"
+        }
+      ]
+    }
+  ]
+}

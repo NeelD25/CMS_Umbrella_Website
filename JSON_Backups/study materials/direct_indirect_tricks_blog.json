@@ -1,0 +1,94 @@
+{
+  "headerHtml": "   <header\n      class=\"preview-header-blue\"\n      style=\"\n        background-color: #049cfb;\n        max-width: 1200px;\n        margin: 0 auto;\n        padding: 12px 20px;\n        display: flex;\n        align-items: center;\n        justify-content: space-between;\n        flex-wrap: wrap;\n        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\n        border-bottom-left-radius: 8px;\n        border-bottom-right-radius: 8px;\n      \"\n    >\n      <a\n        href=\"https://rozgardesk.in/\"\n        style=\"\n          color: white;\n          text-decoration: none;\n          font-size: 22px;\n          font-weight: 700;\n        \"\n      >\n        RozgarDesk.in\n      </a>\n      <nav style=\"display: flex; gap: 15px\">\n        <a\n          href=\"https://rozgardesk.in/\"\n          style=\"color: white; text-decoration: none; font-size: 16px\"\n          >Home</a\n        >\n      </nav>\n    </header>",
+  "footerHtml": "    <footer\n      style=\"\n        all: initial;\n        display: block;\n        width: 100%;\n        text-align: center;\n        padding: 15px 10px;\n        background-color: #2c3e50;\n        color: #ffffff;\n        font-family: Arial, Helvetica, sans-serif;\n        font-size: 14px;\n        box-sizing: border-box;\n        max-width: 1200px;\n        margin: 0 auto;\n        border-top-left-radius: 8px;\n        border-top-right-radius: 8px;\n      \"\n    >\n      <p style=\"all: unset; display: inline; color: #ffffff\">\n        &copy; 2025 <strong>Rozgardesk</strong>. All rights reserved.\n        <a\n          href=\"../../privacypolicy.html\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          Privacy Policy\n        </a>\n        |\n        <a\n          href=\"../../aboutus.html\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          About Us\n        </a>\n        |\n\n        <a\n          href=\"../../terms_and_conditions.html\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          Terms and Conditions\n        </a>\n        |\n\n        <a\n          href=\"https://forms.gle/KzEzY3eSsJYxnxgXA\"\n          style=\"\n            all: unset;\n            color: #ffffff;\n            cursor: pointer;\n            text-decoration: none;\n            font-weight: 500;\n          \"\n          onmouseover='this.style.textDecoration=\"underline\";'\n          onmouseout='this.style.textDecoration=\"none\";'\n        >\n          Contact Us\n        </a>\n      </p>\n    </footer>",
+  "mainContentHtml": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Direct ⇄ Indirect Speech — Fast Tricks for Govt Exams</title>\n  <style>\n    :root{--bg:#fffaf0;--card:#ffffff;--accent:#ff8a65;--accent2:#7c4dff;--muted:#444}\n    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; background:linear-gradient(120deg,var(--bg),#f0f7ff); margin:0; padding:26px; color:#222}\n    .container{max-width:950px;margin:14px auto;padding:30px;background:var(--card);border-radius:14px;box-shadow:0 12px 30px rgba(50,50,93,.07)}\n    header h1{margin:0 0 6px;font-size:28px;color:var(--accent2)}\n    header p{margin:0 0 14px;color:var(--muted)}\n    .hero{display:flex;gap:18px;align-items:center}\n    .badge{background:linear-gradient(90deg,var(--accent),var(--accent2));padding:8px 12px;border-radius:999px;color:white;font-weight:700}\n    h2{color:var(--accent);margin-top:20px}\n    .rule{background:#fff7f3;border-left:6px solid var(--accent);padding:12px;border-radius:8px}\n    ol{margin:8px 0 18px 20px}\n    ul{margin:8px 0 18px 20px}\n    .examples{display:grid;grid-template-columns:1fr 1fr;gap:12px}\n    .card{background:linear-gradient(180deg,#ffffff,#fbfbff);padding:12px;border-radius:8px;border:1px solid #f1f1f6}\n    .pyq{background:linear-gradient(180deg,#f4fff9,#f0fff6);padding:10px;border-radius:8px;border:1px dashed #d6f3e6}\n    footer{font-size:13px;color:#666;margin-top:18px}\n    code{background:#f4f7ff;padding:2px 6px;border-radius:6px;color:#08306b}\n    @media (max-width:720px){.examples{grid-template-columns:1fr} .hero{flex-direction:column;align-items:flex-start}}\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <header class=\"hero\">\n      <div>\n        <div class=\"badge\">Exam Hacks</div>\n        <h1>Fast Tricks to Convert Direct ⇄ Indirect Speech — Govt Exam Guide</h1>\n        <p>Concise rules, quick mental shortcuts and 15+ PYQs with answers — practice these to save precious time in objective tests.</p>\n      </div>\n    </header>\n\n    <main>\n      <section>\n        <h2>Core idea — what changes?</h2>\n        <p class=\"rule\">When shifting from direct to indirect speech, watch four things: <strong>Reporting verb</strong> (say, tell, ask), <strong>pronouns</strong>, <strong>time/place words</strong>, and <strong>verb tense</strong>. Use simple substitution patterns instead of heavy grammar memory.</p>\n      </section>\n\n      <section>\n        <h2>Fast 5-step conversion method</h2>\n        <ol>\n          <li><strong>Identify reporting verb</strong> (said/told/asked) and whether it’s <em>say</em> (no object) or <em>tell</em> (has object).</li>\n          <li><strong>Remove quotation marks</strong> and make the reported clause a subordinate clause (use <code>that</code> for statements, <code>if/whether</code> or <code>to</code>/<code>for</code> for questions).</li>\n          <li><strong>Backshift the tense</strong> if the reporting verb is in the past: present → past, past → past perfect, will → would, can → could, shall → should. (Exceptions: universal truths stay same.)</li>\n          <li><strong>Change pronouns & time/place words</strong> (now → then, today → that day, here → there, yesterday → the day before, next week → the week after).</li>\n          <li><strong>Use correct reporting verb structure</strong>: use <code>tell</code> with object (<em>He told me that...</em>), <code>ask</code> with <code>if/whether</code> for yes/no questions, and <code>ask + wh-word</code> for WH-questions.</li>\n        </ol>\n      </section>\n\n      <section>\n        <h2>Quick tense backshift table</h2>\n        <ul>\n          <li>Present simple → Past simple (<em>He said, \"I live here.\"</em> → <em>He said that he lived there.</em>)</li>\n          <li>Present continuous → Past continuous</li>\n          <li>Present perfect → Past perfect</li>\n          <li>Simple past → Past perfect</li>\n          <li>Will → Would, Can → Could, May → Might</li>\n          <li>Modals without past form (must) → had to / should (context-based)</li>\n        </ul>\n      </section>\n\n      <section>\n        <h2>Shortcut phrases (memorize these)</h2>\n        <ul>\n          <li>\"He said, '...'.\" → \"He said that ...\"</li>\n          <li>\"He said to me, '...'.\" → \"He told me that ...\"</li>\n          <li>Yes/No question: \"Did she come?\" → \"He asked if/whether she had come.\"</li>\n          <li>WH-question: \"Where do you live?\" → \"He asked where I lived.\"</li>\n          <li>Imperative: \"Shut the door.\" → \"He ordered me to shut the door.\"</li>\n        </ul>\n      </section>\n\n      <section>\n        <h2>Examples (Direct → Indirect)</h2>\n        <div class=\"examples\">\n          <div class=\"card\">\n            <strong>Direct:</strong> She said, \"I am reading a book now.\"<br>\n            <p><strong>Indirect:</strong> She said that she was reading a book then.</p>\n          </div>\n\n          <div class=\"card\">\n            <strong>Direct:</strong> He asked, \"Do you like coffee?\"<br>\n            <p><strong>Indirect:</strong> He asked me if I liked coffee.</p>\n          </div>\n\n          <div class=\"card\">\n            <strong>Direct:</strong> The teacher said, \"Finish the exercise.\"<br>\n            <p><strong>Indirect:</strong> The teacher told us to finish the exercise.</p>\n          </div>\n\n          <div class=\"card\">\n            <strong>Direct:</strong> She said, \"I have finished my work.\"<br>\n            <p><strong>Indirect:</strong> She said that she had finished her work.</p>\n          </div>\n        </div>\n      </section>\n\n      <section>\n        <h2>PYQs — Practice 18 sentences</h2>\n        <p>Convert each to reported speech (Indirect). Mix of statements, WH and yes/no questions, commands and requests.</p>\n        <div class=\"pyq\">\n          <ol>\n            <li>Raj said, \"I will come tomorrow.\"</li>\n            <li>She said, \"I saw him yesterday.\"</li>\n            <li>He asked, \"Are you leaving now?\"</li>\n            <li>My mother said to me, \"Do your homework.\"</li>\n            <li>They said, \"We have won the match.\"</li>\n            <li>She asked, \"Where do you live?\"</li>\n            <li>He said, \"I can help you.\"</li>\n            <li>The officer said, \"Submit the form by Friday.\"</li>\n            <li>Rita said, \"I am going to Delhi next week.\"</li>\n            <li>He asked, \"Did they finish the work?\"</li>\n            <li>She said, \"I was planning to call you.\"</li>\n            <li>Teacher said, \"Who has done the assignment?\"</li>\n            <li>She said, \"Don't make noise in the library.\"</li>\n            <li>He said to her, \"Please open the window.\"</li>\n            <li>My friend said, \"I had seen that movie before.\"</li>\n            <li>The doctor said, \"You must take this medicine.\"</li>\n            <li>He said, \"Tomorrow is a holiday.\"</li>\n            <li>They asked, \"Will you attend the meeting?\"</li>\n          </ol>\n        </div>\n        <p style=\"margin-top:12px;color:var(--muted)\">(Answers follow — attempt first!)</p>\n      </section>\n\n      <section>\n        <h2>Answer key — Indirect forms</h2>\n        <ol>\n          <li>Raj said that he would come the next day.</li>\n          <li>She said that she had seen him the day before.</li>\n          <li>He asked if I was leaving then.</li>\n          <li>My mother told me to do my homework.</li>\n          <li>They said that they had won the match.</li>\n          <li>She asked where I lived.</li>\n          <li>He said that he could help me.</li>\n          <li>The officer asked/told us to submit the form by Friday.</li>\n          <li>Rita said that she was going to Delhi the following week/the week after.</li>\n          <li>He asked if they had finished the work.</li>\n          <li>She said that she had been planning to call me.</li>\n          <li>The teacher asked who had done the assignment.</li>\n          <li>She told us not to make noise in the library.</li>\n          <li>He requested her to open the window / He asked her to open the window.</li>\n          <li>My friend said that he had seen that movie before.</li>\n          <li>The doctor said that I had to take that medicine / the doctor told me to take that medicine.</li>\n          <li>He said that the next day was a holiday.</li>\n          <li>They asked if I would attend the meeting.</li>\n        </ol>\n      </section>\n\n      <section>\n        <h2>Exam tips & quick checks</h2>\n        <ul>\n          <li>If reporting verb is present (says/asks), do <strong>not</strong> backshift tenses.</li>\n          <li>For commands use <code>tell/ask/request + object + to + verb</code> (e.g., \"She told him to go.\").</li>\n          <li>Yes/no questions → use <code>if/whether</code>. WH-questions keep the wh-word but remove question order.</li>\n          <li>Time words — memorize replacements: <code>now→then, today→that day, yesterday→the day before, tomorrow→the next day/the following day</code>.</li>\n          <li>Practice converting 20 lines daily; speed and pattern recognition beat deep grammar in objective exams.</li>\n        </ul>\n      </section>\n\n      <footer>\n        <p>Prepared to help you revise quickly. Open the file on your phone and practice the PYQs — repetition builds speed. Want a printable PDF version?</p>\n      </footer>\n    </main>\n  </div>\n  \n</body>\n</html>\n",
+  "isLeftSidebarVisible": false,
+  "isRightSidebarVisible": true,
+  "colors": {
+    "linkColor": "#053f76",
+    "leftSidebarBg": "#eff6ff",
+    "rightSidebarBg": "#ddf8f5",
+    "mainBg": "#ffffff"
+  },
+  "leftSidebar": [
+    {
+      "id": "l1",
+      "heading": "Navigation",
+      "links": [
+        {
+          "text": "Home",
+          "url": "#"
+        },
+        {
+          "text": "About",
+          "url": "#"
+        }
+      ]
+    },
+    {
+      "id": "l2",
+      "heading": "Archives",
+      "links": [
+        {
+          "text": "October 2025",
+          "url": "#"
+        },
+        {
+          "text": "September 2025",
+          "url": "#"
+        }
+      ]
+    }
+  ],
+  "rightSidebar": [
+    {
+      "id": "r1",
+      "heading": "Direct Links",
+      "links": [
+        {
+          "text": "Latest Gov Jobs",
+          "url": "https://www.rozgardesk.in/"
+        },
+        {
+          "text": "Admit Cards",
+          "url": "https://www.rozgardesk.in/admitcards/latest-govt-jobs-admit-cards"
+        },
+        {
+          "id": "id-1761720869190-kro4wc84q",
+          "text": "Answer Keys",
+          "url": "https://www.rozgardesk.in/govt-job-answer-keys"
+        },
+        {
+          "id": "id-1761720885438-uqufxapv2",
+          "text": "Results",
+          "url": "https://www.rozgardesk.in/sarkari-result-govt-job"
+        },
+        {
+          "id": "id-1761720904278-f3xdat70k",
+          "text": "Sports Quota Jobs",
+          "url": "https://www.rozgardesk.in/sports-quota-govt-jobs"
+        },
+        {
+          "id": "id-1761720922022-e2sbcn9qq",
+          "text": "Walk-In Jobs Govt",
+          "url": "https://www.rozgardesk.in/walk-in-govt-jobs"
+        }
+      ]
+    },
+    {
+      "id": "id-1761760314269-qhkdgs9iy",
+      "heading": "Study Materials",
+      "links": [
+        {
+          "text": "Active Passive Short Tricks for Gov Exams",
+          "url": "Active-Passive-Voice-Tricks-Shortcuts-Govt-Job-Exams.html"
+        },
+        {
+          "id": "id-1761760364429-g47gey5fp",
+          "text": "Direct Indirect Short Tricks for Gov  Exams",
+          "url": "Direct-Indirect-Tricks-Shortcuts-Govt-Job-Exams.html"
+        }
+      ]
+    }
+  ]
+}
