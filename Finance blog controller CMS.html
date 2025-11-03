@@ -1,0 +1,376 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Tile CMS — Single File</title>
+  <style>
+    :root{
+      --accent:#0b5cff;
+      --muted-dark:#888;
+      --light-bg:#f6f7fb;
+      --card-bg:#fcfcfc; /* Slightly off-white for cards */
+      --border-color:#e7e9f1;
+      --shadow-color:rgba(12,20,40,0.06); /* Slightly stronger shadow */
+    }
+    /* --- Base Reset & Typography --- */
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
+      margin:24px;
+      background:var(--light-bg);
+      color:#111;
+      line-height:1.4;
+    }
+    header h1{margin:0;font-size:20px;font-weight:600;}
+    strong{font-weight:600;display:block;margin-bottom:8px;font-size:16px;}
+
+    /* --- Layout --- */
+    .layout{
+      display:grid;
+      grid-template-columns:280px 1fr;
+      gap:24px;
+    }
+    .panel{
+      background:white;
+      border-radius:12px;
+      padding:20px;
+      box-shadow:0 4px 12px var(--shadow-color);
+    }
+    .main-section-panel{
+      margin-top:20px;
+    }
+
+    /* --- Form Elements & Controls --- */
+    .controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    button{
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      padding:10px 14px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:500;
+      transition:background 0.2s, box-shadow 0.2s;
+    }
+    button:hover{ background:#094ed9; }
+    button.ghost{
+      background:transparent;
+      color:var(--accent);
+      border:1px solid rgba(11,92,255,0.12);
+      padding:9px 13px;
+    }
+    button.ghost:hover{ background:rgba(11,92,255,0.05); }
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted-dark);
+      margin-top:16px;
+      margin-bottom:4px;
+    }
+    textarea,input[type=text]{
+      width:100%;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid var(--border-color);
+      font-family:system-ui;
+      box-sizing:border-box;
+      transition:border-color 0.2s, box-shadow 0.2s;
+    }
+    textarea:focus,input[type=text]:focus{
+      border-color:var(--accent);
+      outline:none;
+      box-shadow:0 0 0 2px rgba(11,92,255,0.1);
+    }
+    .spaced{margin-top:20px}
+
+    /* --- Header & Top Actions --- */
+    .top-actions{display:flex;gap:10px;align-items:center}
+    .nav-top{display:flex;gap:6px;padding:6px}
+    input[type=file]{display:none}
+
+    /* --- Blocks Area --- */
+    .blocks{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:16px}
+    
+    /* === CARD CHANGES START HERE (Editor Display) === */
+    .block-card{
+      border: none;
+      padding:15px;
+      border-radius:10px;
+      background:var(--card-bg); /* Use slightly off-white for cards */
+      box-shadow: 0 4px 12px var(--shadow-color);
+      transition:box-shadow 0.2s, transform 0.2s;
+      display: flex; /* Make it a flex container */
+      flex-direction: column; /* Stack content vertically */
+      justify-content: space-between; /* Push actions to the bottom */
+    }
+    .block-card:hover{
+      box-shadow: 0 6px 16px rgba(12, 20, 40, 0.08);
+      transform: translateY(-2px);
+    }
+    .block-card h3{
+      margin:0 0 8px 0;
+      font-size:18px;
+      font-weight:700;
+      color: #111;
+      line-height: 1.25; /* Improved line height for titles */
+    }
+    .block-card p{
+      margin:0 0 10px 0;
+      font-size:15px;
+      color:#555;
+      line-height:1.5;
+      overflow-wrap: break-word;
+      flex-grow: 1; /* Allow description to take up available space */
+    }
+    .block-actions{display:flex;gap:8px; margin-top: 10px; /* Add margin to separate from content */ }
+    /* === CARD CHANGES END HERE === */
+
+    /* --- Preview Area --- */
+    .preview-pane{
+      min-height:200px;
+      overflow:auto;
+      border-radius:8px;
+      padding:16px;
+      border:1px solid var(--border-color);
+      background:var(--light-bg);
+    }
+    .small{font-size:13px}
+    .hint{color:var(--muted-dark);font-size:12px;margin-top:10px;}
+  </style>
+</head>
+<body>
+  <header class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h1>Simple Tile CMS — Single-file</h1>
+      <div class="top-actions">
+        <button id="btnPreview">Preview (new tab)</button>
+        <button id="btnDownloadHtml">Download HTML</button>
+        <button id="btnExportJson">Download JSON</button>
+        <label class="ghost" style="padding:9px 13px;border-radius:8px;cursor:pointer;background:transparent;color:var(--accent);border:1px solid rgba(11,92,255,0.12)">
+          Import JSON<input id="importJson" type="file" accept="application/json">
+        </label>
+        <button id="btnClear" class="ghost">Clear</button>
+      </div>
+    </div>
+    <div class="hint">Header, Navigation and Footer HTML are editable. The CMS area between header & footer is where tiles (blocks) appear.</div>
+  </header>
+  <main class="layout">
+    <aside class="panel">
+      <strong>Template pieces</strong>
+      <label>Header HTML</label>
+      <textarea id="headerHtml" rows="4" placeholder="Paste header HTML here (you will supply later)"></textarea>
+      <label>Navigation HTML</label>
+      <textarea id="navHtml" rows="3" placeholder="Navigation (buttons/links)"></textarea>
+
+      <label>Small content area (small html below nav)</label>
+      <textarea id="smallHtml" rows="3" placeholder="A small HTML area under nav"></textarea>
+
+      <label>Footer HTML</label>
+      <textarea id="footerHtml" rows="4" placeholder="Paste footer HTML here"></textarea>
+
+      <div class="spaced">
+        <button id="btnAddBlock">+ Add block</button>
+        <button id="btnSaveLocal" class="ghost">Save locally</button>
+      </div>
+
+      <div class="hint">You can paste full HTML for header / nav / footer. When previewing or downloading the page, the CMS will assemble the pieces and place blocks between header/nav and footer.</div>
+    </aside>
+
+    <section>
+      <div class="panel">
+        <strong>Blocks (these are the tiles shown on the index)</strong>
+        <div id="blocks" class="blocks" aria-live="polite"></div>
+        <div class="hint">Each block has title, short description and a link. Add as many as you need. The grid will adapt to the screen width.</div>
+      </div>
+
+      <div class="panel main-section-panel">
+        <strong>Selected / New Block</strong>
+        <label>Title</label>
+        <input id="bTitle" type="text" placeholder="Block title">
+        <label>Short description</label>
+        <textarea id="bDesc" rows="3" placeholder="Short description (shown on card)"></textarea>
+        <label>Link (URL to open when card is clicked)</label>
+        <input id="bLink" type="text" placeholder="https://example.com/article.html">
+        <div style="margin-top:20px;display:flex;gap:8px">
+          <button id="btnSaveBlock">Save block</button>
+          <button id="btnCancelBlock" class="ghost">Cancel</button>
+        </div>
+      </div>
+
+      <div class="panel main-section-panel">
+        <strong>Preview inside editor</strong>
+        <div id="preview" class="preview-pane small"></div>
+      </div>
+    </section>
+
+  </main>
+  <script>
+    // Data model
+    let state = {
+      headerHtml: '<header><h2>Header (replace)</h2></header>',
+      navHtml: '<nav><a href="#">Home</a> | <a href="#">About</a></nav>',
+      smallHtml: '<div class="lead">Small content area</div>',
+      footerHtml: '<footer><small>Footer (replace)</small></footer>',
+      blocks: []
+    };
+
+    // DOM refs
+    const headerEl = document.getElementById('headerHtml');
+    const navEl = document.getElementById('navHtml');
+    const smallEl = document.getElementById('smallHtml');
+    const footerEl = document.getElementById('footerHtml');
+    const blocksContainer = document.getElementById('blocks');
+    const previewPane = document.getElementById('preview');
+
+    const bTitle = document.getElementById('bTitle');
+    const bDesc = document.getElementById('bDesc');
+    const bLink = document.getElementById('bLink');
+    const btnSaveBlock = document.getElementById('btnSaveBlock');
+    const btnAddBlock = document.getElementById('btnAddBlock');
+    const btnPreview = document.getElementById('btnPreview');
+    const btnDownloadHtml = document.getElementById('btnDownloadHtml');
+    const btnExportJson = document.getElementById('btnExportJson');
+    const importJson = document.getElementById('importJson');
+    const btnSaveLocal = document.getElementById('btnSaveLocal');
+    const btnClear = document.getElementById('btnClear');
+
+    let editIndex = null;
+
+    // --- helpers ---
+    function renderBlocks() {
+      blocksContainer.innerHTML = '';
+      state.blocks.forEach((blk, i) => {
+        const card = document.createElement('div');
+        card.className = 'block-card';
+        // Note: The actual clickable link behavior is in the final HTML output.
+        // In the editor, these are visual cards with edit/remove buttons.
+        card.innerHTML = `
+          <h3>${escapeHtml(blk.title || 'Untitled')}</h3>
+          <p>${escapeHtml(blk.desc || '')}</p>
+          <div class="block-actions">
+            <button data-i="${i}" class="edit">Edit</button>
+            <button data-i="${i}" class="del ghost">Remove</button>
+          </div>
+        `;
+        blocksContainer.appendChild(card);
+      });
+      renderPreview();
+      attachBlockEvents();
+    }
+
+    function attachBlockEvents(){
+      blocksContainer.querySelectorAll('button.edit').forEach(btn=>btn.addEventListener('click',e=>{
+        const i = +e.currentTarget.dataset.i; startEditBlock(i);
+      }));
+      blocksContainer.querySelectorAll('button.del').forEach(btn=>btn.addEventListener('click',e=>{
+        const i = +e.currentTarget.dataset.i; if(confirm('Remove block?')){ state.blocks.splice(i,1); saveToLocal(); renderBlocks(); }
+      }));
+    }
+
+    function startEditBlock(i){
+      editIndex = i;
+      const blk = state.blocks[i];
+      bTitle.value = blk.title; bDesc.value = blk.desc; bLink.value = blk.link || '';
+      btnSaveBlock.textContent = 'Update block';
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function createBlockFromInputs(){
+      return { title: bTitle.value.trim(), desc: bDesc.value.trim(), link: bLink.value.trim() };
+    }
+
+    function clearBlockInputs(){ bTitle.value=''; bDesc.value=''; bLink.value=''; editIndex=null; btnSaveBlock.textContent='Save block'; }
+
+    function renderPreview(){
+      // assemble mini preview (only inner area between header/nav and footer)
+      let inner = '<div style="padding:12px">';
+      inner += state.smallHtml || '';
+      inner += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:12px">';
+      
+      // === PREVIEW RENDER CHANGE START ===
+      state.blocks.forEach(b=>{
+        inner += `<a href="${escapeAttr(b.link || '#')}" target="_blank" style="display:flex;flex-direction:column;justify-content:space-between;text-decoration:none;color:inherit;border:none;padding:16px;border-radius:10px;background:var(--card-bg);box-shadow: 0 4px 12px rgba(12, 20, 40, 0.05);transition:box-shadow 0.2s, transform 0.2s;"><h4 style="margin:0 0 8px 0; font-size: 18px; font-weight: 700; color: #111; line-height: 1.25;">${escapeHtml(b.title)}</h4><p style="margin: 0; font-size: 15px; color: #555; line-height: 1.5; overflow-wrap: break-word;">${escapeHtml(b.desc)}</p></a>`;
+      });
+      // === PREVIEW RENDER CHANGE END ===
+
+      inner += '</div></div>';
+      previewPane.innerHTML = inner;
+    }
+
+    // Assembles complete HTML for download/preview
+    function assembleFullHtml(){
+      // === FULL HTML CHANGE START ===
+      return `<!doctype html>\n<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Preview</title><style>body{font-family:system-ui,Arial;padding:18px;background:#f6f7fb} .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px} .card{display:flex;flex-direction:column;justify-content:space-between;text-decoration:none;color:inherit;border:none;padding:16px;border-radius:10px;background:#fcfcfc;box-shadow: 0 4px 12px rgba(12, 20, 40, 0.06);transition: box-shadow 0.2s, transform 0.2s;} .card:hover{box-shadow: 0 6px 16px rgba(12, 20, 40, 0.08);transform: translateY(-2px);} .card h3 { margin: 0 0 8px 0; font-size: 18px; font-weight: 700; color: #111; line-height: 1.25;} .card p { margin: 0; font-size: 15px; color: #555; line-height: 1.5; overflow-wrap: break-word; }</style></head><body>\n${state.headerHtml}\n${state.navHtml}\n<div class="content">\n${state.smallHtml}\n<div class="grid">\n${state.blocks.map(b=>`<a href="${escapeAttr(b.link||'#')}" target="_blank" class="card"><h3>${escapeHtml(b.title)}</h3><p>${escapeHtml(b.desc)}</p></a>`).join('')}\n</div>\n</div>\n${state.footerHtml}\n</body></html>`;
+      // === FULL HTML CHANGE END ===
+    }
+
+// Utilities
+function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+function escapeAttr(s){ if(!s) return ''; return s.replaceAll('"','&quot;').replaceAll('\'','&#39;').replaceAll('<','&lt;'); }
+
+// --- persistence ---
+function saveToLocal(){ localStorage.setItem('simpleCmsState', JSON.stringify(state)); }
+function loadFromLocal(){ const v = localStorage.getItem('simpleCmsState'); if(v){ try{ state = JSON.parse(v); }catch(e){ console.warn('failed to parse saved state'); } } }
+
+// --- events ---
+headerEl.addEventListener('input',()=>{ state.headerHtml = headerEl.value; renderPreview(); saveToLocal(); });
+navEl.addEventListener('input',()=>{ state.navHtml = navEl.value; renderPreview(); saveToLocal(); });
+smallEl.addEventListener('input',()=>{ state.smallHtml = smallEl.value; renderPreview(); saveToLocal(); });
+footerEl.addEventListener('input',()=>{ state.footerHtml = footerEl.value; renderPreview(); saveToLocal(); });
+
+btnAddBlock.addEventListener('click',()=>{ clearBlockInputs(); bTitle.focus(); });
+
+btnSaveBlock.addEventListener('click',()=>{
+  const blk = createBlockFromInputs();
+  if(!blk.title){ alert('Title is required'); return; }
+  if(editIndex==null){ state.blocks.push(blk); } else { state.blocks[editIndex]=blk; }
+  clearBlockInputs(); renderBlocks(); saveToLocal();
+});
+
+btnCancelBlock.addEventListener('click',()=>{ clearBlockInputs(); });
+
+btnPreview.addEventListener('click',()=>{
+  const html = assembleFullHtml();
+  const w = window.open();
+  w.document.open(); w.document.write(html); w.document.close();
+});
+
+btnDownloadHtml.addEventListener('click',()=>{
+  const blob = new Blob([assembleFullHtml()], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'page-preview.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+btnExportJson.addEventListener('click',()=>{
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'simple-cms-data.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+importJson.addEventListener('change',async (e)=>{
+  const f = e.target.files[0]; if(!f) return; try{
+    const text = await f.text(); const parsed = JSON.parse(text);
+    if(confirm('Restore JSON into editor? This will replace current content.')){
+      state = parsed; applyStateToForm(); saveToLocal(); renderBlocks();
+    }
+  }catch(err){ alert('Invalid JSON file'); }
+  importJson.value='';
+});
+
+btnSaveLocal.addEventListener('click',()=>{ saveToLocal(); alert('Saved to browser localStorage'); });
+
+btnClear.addEventListener('click',()=>{ if(confirm('Clear everything?')){ state = {headerHtml:'',navHtml:'',smallHtml:'',footerHtml:'',blocks:[]}; applyStateToForm(); renderBlocks(); saveToLocal(); } });
+
+function applyStateToForm(){ headerEl.value = state.headerHtml || ''; navEl.value = state.navHtml || ''; smallEl.value = state.smallHtml || ''; footerEl.value = state.footerHtml || ''; }
+
+// --- init ---
+loadFromLocal(); applyStateToForm(); renderBlocks();
+
+// keyboard: Ctrl+S exports JSON
+document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); btnExportJson.click(); } });
+
+  </script>
+</body>
+</html>
